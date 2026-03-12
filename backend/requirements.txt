@@ -1,0 +1,26 @@
+fastapi
+uvicorn[standard]
+pydantic-settings
+sqlalchemy
+pymysql
+alembic
+python-jose[cryptography]
+bcrypt
+python-multipart
+httpx
+tiktoken
+python-docx
+openpyxl
+pandas
+pypdf
+pypandoc
+cryptography
+chardet
+python-dotenv
+hypothesis
+pytest
+ruff
+mcp
+redis
+# 扩展依赖
+elasticsearch==8.11.0

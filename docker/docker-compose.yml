@@ -1,0 +1,117 @@
+name: ai-skill-sharing-platform-release
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "16379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: ai_platform
+    ports:
+      - "13306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+
+  elasticsearch:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "19200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  chroma:
+    image: chromadb/chroma:0.5.23
+    ports:
+      - "18000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/api/v1/heartbeat >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    ports:
+      - "18080:8080"
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:password@mysql:3306/ai_platform?charset=utf8mb4
+      - REDIS_URL=redis://redis:6379/0
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - CHROMA_URL=http://chroma:8000
+      - APP_ENV=production
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8080
+      - JWT_SECRET_KEY=change-me-in-production
+      - MCP_ENABLED=false
+    volumes:
+      - ../backend:/app
+      - backend_uploads:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      chroma:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/api/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8080"
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "15173:5173"
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    depends_on:
+      backend:
+        condition: service_started
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+
+volumes:
+  redis_data:
+  mysql_data:
+  es_data:
+  chroma_data:
+  backend_uploads:

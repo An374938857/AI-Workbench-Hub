@@ -1,0 +1,77 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+backend/venv/
+backend/.venv/
+
+# Node.js
+frontend/node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Environment variables
+.env
+backend/.env
+
+# Runtime files
+scripts/.pids/*.log
+scripts/.pids/*.pid
+*.log
+
+# Temporary uploads
+backend/uploads/temp_packages/
+
+# Compiled output
+frontend/dist/
+frontend/coverage/
+
+# Hypothesis test cache
+backend/.hypothesis/
+
+# SQLite database
+backend/app.db
+backend/*.db
+logs/
+
+
+# Work master
+backend/.work-master/
+
+# Uploaded files (user generated)
+backend/uploads/**
+backend/backend/uploads/**
+!backend/uploads/.gitkeep
+!backend/uploads/assets/.gitkeep
+!backend/uploads/audit_exports/.gitkeep
+!backend/uploads/files/.gitkeep
+!backend/uploads/generated/.gitkeep
+!backend/uploads/icons/.gitkeep
+!backend/uploads/images/.gitkeep
+!backend/uploads/packages/.gitkeep
+!backend/uploads/sandbox/.gitkeep
+!backend/uploads/temp_packages/.gitkeep
+
+# Local review artifacts
+.tmp-*.png
+
+# Dumps and backups
+*.sql
+*.dump
+*.bak
+backup/
+
+# Secrets
+*.pem
+*.key
+*.crt

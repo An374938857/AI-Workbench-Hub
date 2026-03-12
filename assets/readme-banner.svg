@@ -1,0 +1,38 @@
+<svg width="1280" height="320" viewBox="0 0 1280 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">AI Workbench Hub</title>
+  <desc id="desc">Bright elegant open source banner</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FDF7EE"/>
+      <stop offset="0.45" stop-color="#F4FAFF"/>
+      <stop offset="1" stop-color="#EEFDF8"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="90" y1="40" x2="1190" y2="278" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.62"/>
+    </linearGradient>
+    <linearGradient id="topline" x1="80" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE"/>
+      <stop offset="0.5" stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <filter id="shadow" x="50" y="20" width="1180" height="280" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#7C8EA3" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="320" fill="url(#bg)"/>
+
+  <circle cx="1100" cy="-10" r="210" fill="#7DD3FC" fill-opacity="0.35"/>
+  <circle cx="145" cy="292" r="180" fill="#A7F3D0" fill-opacity="0.34"/>
+  <circle cx="1240" cy="286" r="150" fill="#FDE68A" fill-opacity="0.30"/>
+
+  <g filter="url(#shadow)">
+    <rect x="80" y="42" width="1120" height="236" rx="24" fill="url(#glass)" stroke="#D8E4EF"/>
+    <rect x="80" y="42" width="1120" height="4" rx="2" fill="url(#topline)"/>
+  </g>
+
+  <text x="120" y="122" fill="#667A91" font-family="'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="21" letter-spacing="1.8">OPEN SOURCE • SELF HOSTED • DOCKER</text>
+  <text x="120" y="188" fill="#12253A" font-family="'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="56" font-weight="700">AI Workbench Hub</text>
+  <text x="120" y="236" fill="#4C6278" font-family="'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="24">Elegant workflow infrastructure for AI-powered product teams</text>
+</svg>
