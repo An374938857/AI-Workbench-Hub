@@ -11,6 +11,7 @@ const authStore = useAuthStore()
 const activeMenuIndex = computed(() => {
   const path = route.path
   if (path.startsWith('/admin/skills')) return '/admin/skills'
+  if (path.startsWith('/admin/mcps')) return '/admin/mcps'
   if (path.startsWith('/admin/model-providers') || path.startsWith('/admin/routing-rules')) return '/admin/model-providers'
   if (path.startsWith('/admin/workflows')) return '/admin/workflows'
   if (path.startsWith('/admin/audit')) return '/admin/audit/conversations'
@@ -50,6 +51,10 @@ function handleLogout() {
         <el-menu-item v-if="authStore.isAdmin" index="/admin/model-providers">
           <el-icon><Setting /></el-icon>
           <span>模型管理</span>
+        </el-menu-item>
+        <el-menu-item v-if="authStore.isAdmin" index="/admin/mcps">
+          <el-icon><Connection /></el-icon>
+          <span>MCP 管理</span>
         </el-menu-item>
         <el-menu-item v-if="authStore.isAdmin" index="/admin/embedding">
           <el-icon><DataLine /></el-icon>

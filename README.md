@@ -34,6 +34,7 @@ AI一站式工作台，一个主要面向项目经理、产品经理、研发人
 
 - 全量 Docker 化运行（`frontend`、`backend`、`mysql`、`redis`、`elasticsearch`、`chroma`）
 - 首次初始化单入口脚本
+- 内置首装种子数据（通用工具 Skill、提示词模板、脱敏 MCP）
 - 支持语义化版本发布流程
 
 ## 快速开始（从 clone 到运行）
@@ -56,7 +57,7 @@ cd AI-Workbench-Hub
   - `19200`（Elasticsearch）
   - `18000`（Chroma）
 
-### 3. 首次初始化并启动
+### 3. 首次初始化并启动（生产模式）
 
 ```bash
 ./scripts/bootstrap.sh
@@ -69,7 +70,8 @@ cd AI-Workbench-Hub
 3. 执行数据库迁移（`alembic upgrade head`）
 4. 初始化 Elasticsearch 索引
 5. 创建默认管理员账号
-6. 启动后端与前端服务
+6. 导入开源种子数据（幂等）
+7. 启动后端与前端服务
 
 ### 4. 访问系统
 
@@ -80,6 +82,56 @@ cd AI-Workbench-Hub
 
 - username: `admin`
 - password: `admin123`
+
+### 5. 日常启动（非首次）
+
+```bash
+./scripts/start.sh
+```
+
+### 6. 开发模式（热更新）
+
+```bash
+# 首次开发初始化
+./scripts/bootstrap.sh --dev
+
+# 日常开发启动
+./scripts/start.sh --dev
+```
+
+### 7. 显式重建镜像
+
+```bash
+# 启动时构建
+./scripts/start.sh --build
+
+# 强制重建（down + build + up）
+./scripts/restart.sh --rebuild
+```
+
+## 从 V1.0.0 升级到 V1.0.1（无缝升级）
+
+可以无缝升级。`V1.0.1` 的迁移与种子导入均为幂等设计，不会清空你已有业务数据。
+
+推荐升级步骤：
+
+```bash
+# 1) 拉取代码与标签
+git fetch --all --tags
+git checkout V1.0.1
+
+# 2) 可选：如果你希望 Aliyun Coding Plan 部署后立即可用，先配置密钥
+export RELEASE_ALIYUN_CODING_PLAN_API_KEY='你的API Key'
+
+# 3) 执行升级（会自动 migrate + 索引初始化 + 管理员检查 + 种子幂等导入）
+./scripts/bootstrap.sh --build
+```
+
+如果你只想更新代码与镜像、不执行初始化链路，可用：
+
+```bash
+./scripts/restart.sh --build
+```
 
 ## 管理后台（快速说明）
 
@@ -95,14 +147,26 @@ cd AI-Workbench-Hub
 ## 日常运维命令
 
 ```bash
-# 启动 / 重建
+# 启动（默认生产模式）
 ./scripts/start.sh
+
+# 开发模式启动
+./scripts/start.sh --dev
 
 # 重启
 ./scripts/restart.sh
 
+# 开发模式重启
+./scripts/restart.sh --dev
+
+# 强制重建
+./scripts/restart.sh --rebuild
+
 # 停止
 ./scripts/stop.sh
+
+# 停止开发模式
+./scripts/stop.sh --dev
 
 # 仅重启后端
 ./scripts/restart-backend.sh
@@ -125,6 +189,22 @@ cd AI-Workbench-Hub
 - `ELASTICSEARCH_URL`
 - `CHROMA_URL`
 - `JWT_SECRET_KEY`
+- `RELEASE_ALIYUN_CODING_PLAN_API_KEY`（可选，首次 `bootstrap` 时注入 Aliyun Coding Plan 密钥）
+
+### 模型服务商配置说明
+
+- 平台支持配置任意兼容以下协议的模型服务商：
+  - `openai_compatible`
+  - `anthropic`
+- 开源版默认会初始化 `Aliyun Coding Plan` 服务商与模型清单。
+- 若希望部署后直接可用，请在启动前配置：
+
+```bash
+export RELEASE_ALIYUN_CODING_PLAN_API_KEY='你的API Key'
+./scripts/bootstrap.sh --build
+```
+
+- 除默认服务商外，你也可以在管理后台继续新增其他兼容 OpenAI 或 Anthropic 协议的服务商与模型。
 
 ## 数据库迁移
 
@@ -134,7 +214,7 @@ cd AI-Workbench-Hub
 ## 项目约束
 
 - 仓库中不应包含任何个人业务数据
-- 运行态不内置 MCP 配置
+- 开源默认种子仅包含脱敏 MCP 配置（`Authorization=<REQUIRED>`，需自行补充）
 - 发布流程遵循 SemVer + Changelog 规范
 
 ## 相关文档
@@ -144,3 +224,8 @@ cd AI-Workbench-Hub
 - [RELEASE.md](./RELEASE.md)
 - [SECURITY.md](./SECURITY.md)
 - [LICENSE](./LICENSE)
+
+## README 说明
+
+- `README.md`：中文默认展示（GitHub 首页）
+- `README.en-US.md`：英文版

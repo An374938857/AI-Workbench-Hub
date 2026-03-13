@@ -10,6 +10,8 @@ from app.routers import admin_skills, admin_model_providers, admin_dashboard, ad
 from app.routers import tags, sort_preferences, admin_routing_rules, system_config, prompt_templates, reference
 from app.routers import admin_audit
 from app.routers import (
+    admin_mcps,
+    mcps,
     admin_workflows,
     projects,
     requirements,
@@ -52,6 +54,7 @@ app.include_router(models.router, prefix="/api/models", tags=["模型"])
 app.include_router(files.router, prefix="/api/files", tags=["文件"])
 app.include_router(admin_skills.router, prefix="/api/admin/skills", tags=["Skill管理"])
 app.include_router(admin_model_providers.router, prefix="/api/admin/model-providers", tags=["模型配置"])
+app.include_router(admin_mcps.router, prefix="/api/admin/mcps", tags=["MCP管理"])
 app.include_router(admin_embedding.router, prefix="/api/admin/embedding", tags=["Embedding管理"])
 app.include_router(admin_fallback.router, prefix="/api/admin/model-fallbacks", tags=["Fallback配置"])
 app.include_router(admin_dashboard.router, prefix="/api/admin/dashboard", tags=["数据看板"])
@@ -69,6 +72,7 @@ app.include_router(workflow_instances.router, prefix="/api/v1/workflow-instances
 app.include_router(assets.router, prefix="/api/v1/assets", tags=["资料管理"])
 app.include_router(workflow_definitions.router, prefix="/api/v1/workflow-definitions", tags=["流程定义"])
 app.include_router(sandbox_views.router, prefix="/api/v1/sandbox-views", tags=["关联沙箱"])
+app.include_router(mcps.router, prefix="/api/mcps", tags=["MCP广场"])
 
 
 @app.on_event("startup")

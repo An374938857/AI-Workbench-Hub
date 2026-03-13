@@ -22,5 +22,4 @@ pytest
 ruff
 mcp
 redis
-# 扩展依赖
 elasticsearch==8.11.0

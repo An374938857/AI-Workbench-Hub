@@ -1,0 +1,9 @@
+name: ai-skill-sharing-platform-release
+
+services:
+  backend:
+    environment:
+      - APP_ENV=production
+
+  frontend:
+    command: sh -c "npm run dev -- --host 0.0.0.0"

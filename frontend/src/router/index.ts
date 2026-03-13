@@ -56,7 +56,19 @@ const routes: RouteRecordRaw[] = [
         path: 'skills/:id',
         name: 'SkillDetail',
         component: () => import('@/views/SkillDetail.vue'),
-      },      {
+      },
+      {
+        path: 'mcps',
+        name: 'McpSquare',
+        component: () => import('@/views/McpSquare.vue'),
+        meta: { scrollableMain: true },
+      },
+      {
+        path: 'mcps/:id',
+        name: 'McpDetail',
+        component: () => import('@/views/McpDetail.vue'),
+      },
+      {
         path: 'chat/:id?',
         name: 'Chat',
         component: () => import('@/views/Chat.vue'),
@@ -111,6 +123,12 @@ const routes: RouteRecordRaw[] = [
         path: 'model-providers',
         name: 'AdminModelProvider',
         component: () => import('@/views/admin/ModelManageTabs.vue'),
+        meta: { roles: ['admin'] },
+      },
+      {
+        path: 'mcps',
+        name: 'AdminMcpManage',
+        component: () => import('@/views/admin/McpManage.vue'),
         meta: { roles: ['admin'] },
       },
       {

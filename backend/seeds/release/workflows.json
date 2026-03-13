@@ -1,0 +1,250 @@
+[
+  {
+    "name": "项目管理通用流程",
+    "code": "GENERAL_PROJECT_FLOW",
+    "scope": "PROJECT",
+    "description": null,
+    "status": "ACTIVE",
+    "version": {
+      "version_label": "V1",
+      "schema_json": {
+        "nodes": [
+          {
+            "skill_id": 10,
+            "node_code": "NODE_1",
+            "node_name": "编写项目管理文档",
+            "node_order": 1,
+            "output_type": "MARKDOWN,YUQUE_URL",
+            "retry_policy_json": null,
+            "input_mapping_json": null
+          },
+          {
+            "skill_id": 11,
+            "node_code": "NODE_2",
+            "node_name": "项目管理文档检查",
+            "node_order": 2,
+            "output_type": "MARKDOWN",
+            "retry_policy_json": null,
+            "input_mapping_json": null
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "node_code": "NODE_1",
+          "node_name": "编写项目管理文档",
+          "node_order": 1,
+          "output_type": "MARKDOWN,YUQUE_URL",
+          "input_mapping_json": null,
+          "retry_policy_json": null,
+          "skill_name": "项目文档创建"
+        },
+        {
+          "node_code": "NODE_2",
+          "node_name": "项目管理文档检查",
+          "node_order": 2,
+          "output_type": "MARKDOWN",
+          "input_mapping_json": null,
+          "retry_policy_json": null,
+          "skill_name": "项目文档检查"
+        }
+      ]
+    }
+  },
+  {
+    "name": "需求管理通用流程",
+    "code": "GENERAL_DEMAND_FLOW",
+    "scope": "REQUIREMENT",
+    "description": null,
+    "status": "ACTIVE",
+    "version": {
+      "version_label": "V1",
+      "schema_json": {
+        "nodes": [
+          {
+            "skill_id": 7,
+            "node_code": "NODE_1",
+            "node_name": "原始需求",
+            "node_order": 1,
+            "output_type": "MARKDOWN,YUQUE_URL",
+            "retry_policy_json": null,
+            "input_mapping_json": null
+          },
+          {
+            "skill_id": 7,
+            "node_code": "NODE_2",
+            "node_name": "需求调研",
+            "node_order": 2,
+            "output_type": "MARKDOWN,YUQUE_URL",
+            "retry_policy_json": null,
+            "input_mapping_json": null
+          },
+          {
+            "skill_id": 5,
+            "node_code": "NODE_3",
+            "node_name": "编写PRD",
+            "node_order": 3,
+            "output_type": "MARKDOWN,YUQUE_URL",
+            "retry_policy_json": null,
+            "input_mapping_json": null
+          },
+          {
+            "skill_id": 6,
+            "node_code": "NODE_4",
+            "node_name": "评审PRD（AI）",
+            "node_order": 4,
+            "output_type": "MARKDOWN",
+            "retry_policy_json": null,
+            "input_mapping_json": null
+          },
+          {
+            "skill_id": null,
+            "node_code": "NODE_5",
+            "node_name": "需求方确认",
+            "node_order": 5,
+            "output_type": "MARKDOWN,YUQUE_URL",
+            "retry_policy_json": null,
+            "input_mapping_json": null
+          },
+          {
+            "skill_id": null,
+            "node_code": "NODE_6",
+            "node_name": "评审PRD（技术）",
+            "node_order": 6,
+            "output_type": "MARKDOWN,YUQUE_URL",
+            "retry_policy_json": null,
+            "input_mapping_json": null
+          },
+          {
+            "skill_id": 20,
+            "node_code": "NODE_10",
+            "node_name": "测试用例评审",
+            "node_order": 7,
+            "output_type": "MARKDOWN,YUQUE_URL",
+            "retry_policy_json": null,
+            "input_mapping_json": null
+          },
+          {
+            "skill_id": null,
+            "node_code": "NODE_7",
+            "node_name": "功能验收",
+            "node_order": 8,
+            "output_type": "MARKDOWN,YUQUE_URL",
+            "retry_policy_json": null,
+            "input_mapping_json": null
+          },
+          {
+            "skill_id": null,
+            "node_code": "NODE_8",
+            "node_name": "上线发布",
+            "node_order": 9,
+            "output_type": "MARKDOWN,YUQUE_URL",
+            "retry_policy_json": null,
+            "input_mapping_json": null
+          },
+          {
+            "skill_id": null,
+            "node_code": "NODE_9",
+            "node_name": "初始化配置",
+            "node_order": 10,
+            "output_type": "MARKDOWN,YUQUE_URL",
+            "retry_policy_json": null,
+            "input_mapping_json": null
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "node_code": "NODE_1",
+          "node_name": "原始需求",
+          "node_order": 1,
+          "output_type": "MARKDOWN,YUQUE_URL",
+          "input_mapping_json": null,
+          "retry_policy_json": null,
+          "skill_name": "会议纪要"
+        },
+        {
+          "node_code": "NODE_2",
+          "node_name": "需求调研",
+          "node_order": 2,
+          "output_type": "MARKDOWN,YUQUE_URL",
+          "input_mapping_json": null,
+          "retry_policy_json": null,
+          "skill_name": "会议纪要"
+        },
+        {
+          "node_code": "NODE_3",
+          "node_name": "编写PRD",
+          "node_order": 3,
+          "output_type": "MARKDOWN,YUQUE_URL",
+          "input_mapping_json": null,
+          "retry_policy_json": null,
+          "skill_name": "PRD 编写专家"
+        },
+        {
+          "node_code": "NODE_4",
+          "node_name": "评审PRD（AI）",
+          "node_order": 4,
+          "output_type": "MARKDOWN",
+          "input_mapping_json": null,
+          "retry_policy_json": null,
+          "skill_name": "PRD 评审专家"
+        },
+        {
+          "node_code": "NODE_5",
+          "node_name": "需求方确认",
+          "node_order": 5,
+          "output_type": "MARKDOWN,YUQUE_URL",
+          "input_mapping_json": null,
+          "retry_policy_json": null,
+          "skill_name": null
+        },
+        {
+          "node_code": "NODE_6",
+          "node_name": "评审PRD（技术）",
+          "node_order": 6,
+          "output_type": "MARKDOWN,YUQUE_URL",
+          "input_mapping_json": null,
+          "retry_policy_json": null,
+          "skill_name": null
+        },
+        {
+          "node_code": "NODE_10",
+          "node_name": "测试用例评审",
+          "node_order": 7,
+          "output_type": "MARKDOWN,YUQUE_URL",
+          "input_mapping_json": null,
+          "retry_policy_json": null,
+          "skill_name": "测试用例"
+        },
+        {
+          "node_code": "NODE_7",
+          "node_name": "功能验收",
+          "node_order": 8,
+          "output_type": "MARKDOWN,YUQUE_URL",
+          "input_mapping_json": null,
+          "retry_policy_json": null,
+          "skill_name": null
+        },
+        {
+          "node_code": "NODE_8",
+          "node_name": "上线发布",
+          "node_order": 9,
+          "output_type": "MARKDOWN,YUQUE_URL",
+          "input_mapping_json": null,
+          "retry_policy_json": null,
+          "skill_name": null
+        },
+        {
+          "node_code": "NODE_9",
+          "node_name": "初始化配置",
+          "node_order": 10,
+          "output_type": "MARKDOWN,YUQUE_URL",
+          "input_mapping_json": null,
+          "retry_policy_json": null,
+          "skill_name": null
+        }
+      ]
+    }
+  }
+]

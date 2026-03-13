@@ -1,0 +1,107 @@
+[
+  {
+    "source_provider_id": 3,
+    "models": [
+      {
+        "model_name": "qwen3.5-plus",
+        "context_window": 1000000,
+        "is_enabled": true,
+        "description": null,
+        "max_output_tokens": null,
+        "is_default": false,
+        "capability_tags": [
+          "fast_response",
+          "reasoning",
+          "coding",
+          "creative_writing",
+          "long_context"
+        ]
+      },
+      {
+        "model_name": "kimi-k2.5",
+        "context_window": 256000,
+        "is_enabled": true,
+        "description": null,
+        "max_output_tokens": null,
+        "is_default": true,
+        "capability_tags": [
+          "fast_response",
+          "coding",
+          "multimodal",
+          "data_analysis",
+          "creative_writing",
+          "long_context"
+        ]
+      },
+      {
+        "model_name": "glm-5",
+        "context_window": 200000,
+        "is_enabled": true,
+        "description": null,
+        "max_output_tokens": null,
+        "is_default": false,
+        "capability_tags": [
+          "reasoning",
+          "deep_thinking",
+          "coding",
+          "data_analysis"
+        ]
+      },
+      {
+        "model_name": "MiniMax-M2.5",
+        "context_window": 200000,
+        "is_enabled": true,
+        "description": null,
+        "max_output_tokens": null,
+        "is_default": false,
+        "capability_tags": [
+          "fast_response",
+          "creative_writing",
+          "long_context"
+        ]
+      },
+      {
+        "model_name": "qwen3-coder-next",
+        "context_window": 1000000,
+        "is_enabled": true,
+        "description": null,
+        "max_output_tokens": null,
+        "is_default": false,
+        "capability_tags": [
+          "coding",
+          "reasoning",
+          "fast_response",
+          "long_context"
+        ]
+      },
+      {
+        "model_name": "qwen3-coder-plus",
+        "context_window": 1000000,
+        "is_enabled": true,
+        "description": null,
+        "max_output_tokens": null,
+        "is_default": false,
+        "capability_tags": [
+          "coding",
+          "reasoning",
+          "deep_thinking",
+          "long_context"
+        ]
+      },
+      {
+        "model_name": "glm-4.7",
+        "context_window": 200000,
+        "is_enabled": true,
+        "description": null,
+        "max_output_tokens": null,
+        "is_default": false,
+        "capability_tags": [
+          "fast_response",
+          "reasoning",
+          "coding",
+          "deep_thinking"
+        ]
+      }
+    ]
+  }
+]

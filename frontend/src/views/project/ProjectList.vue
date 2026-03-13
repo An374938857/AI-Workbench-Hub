@@ -935,6 +935,7 @@ async function handleSubmitNodeAsset() {
   const projectId = currentNodeAssetProject.value.id
   const nodeCode = currentNodeAsset.value.node_code
   const isUrlAsset = nodeAssetForm.value.asset_type === 'URL'
+  let urlSyncInProgress = false
 
   nodeAssetSubmitting.value = true
   try {
@@ -977,12 +978,13 @@ async function handleSubmitNodeAsset() {
         const status = normalizeAssetSyncStatus(res.data?.refetch_status)
         if (isAssetSyncInProgressStatus(status)) {
           ElMessage.info('已提交后台下载，稍后自动更新状态')
+          urlSyncInProgress = true
           nodeAssetSyncPolling.markTaskSubmitted()
         }
       }
     }
 
-    ElMessage.success(isUrlAsset ? '节点资料已保存，后台正在处理' : '节点资产保存成功')
+    ElMessage.success(isUrlAsset ? (urlSyncInProgress ? '节点资料已保存，后台正在处理' : '节点资料已保存') : '节点资产保存成功')
     nodeAssetForm.value.files = []
     await refreshNodeAssets()
   } finally {

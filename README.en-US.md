@@ -33,6 +33,7 @@ AI Workbench Hub is an open-source collaboration platform primarily designed for
 
 - Fully Dockerized runtime (`frontend`, `backend`, `mysql`, `redis`, `elasticsearch`, `chroma`)
 - Single bootstrap entry for first-time setup
+- Built-in first-install seed data (general-tool skills, prompt templates, sanitized MCP configs)
 - SemVer-ready release process
 
 ## Quick Start (From Clone to Running)
@@ -55,7 +56,7 @@ cd AI-Workbench-Hub
   - `19200` (elasticsearch)
   - `18000` (chroma)
 
-### 3. First-time initialization and startup
+### 3. First-time initialization and startup (production mode)
 
 ```bash
 ./scripts/bootstrap.sh
@@ -68,7 +69,8 @@ cd AI-Workbench-Hub
 3. Run database migration (`alembic upgrade head`)
 4. Initialize Elasticsearch indices
 5. Create default admin account
-6. Start backend and frontend
+6. Import open-source seed data (idempotent)
+7. Start backend and frontend
 
 ### 4. Access application
 
@@ -79,6 +81,56 @@ Default admin credentials:
 
 - username: `admin`
 - password: `admin123`
+
+### 5. Daily startup (non-first-run)
+
+```bash
+./scripts/start.sh
+```
+
+### 6. Development mode (hot reload)
+
+```bash
+# First-time dev bootstrap
+./scripts/bootstrap.sh --dev
+
+# Daily dev startup
+./scripts/start.sh --dev
+```
+
+### 7. Explicit rebuild
+
+```bash
+# Build on startup
+./scripts/start.sh --build
+
+# Force rebuild (down + build + up)
+./scripts/restart.sh --rebuild
+```
+
+## Upgrade from V1.0.0 to V1.0.1 (Seamless)
+
+Yes, upgrade is seamless. In `V1.0.1`, migrations and seed import are idempotent and do not wipe existing business data.
+
+Recommended upgrade steps:
+
+```bash
+# 1) Fetch code and tags
+git fetch --all --tags
+git checkout V1.0.1
+
+# 2) Optional: set key if you want Aliyun Coding Plan to be usable immediately
+export RELEASE_ALIYUN_CODING_PLAN_API_KEY='your-api-key'
+
+# 3) Run upgrade flow (migrate + index init + admin check + idempotent seeds)
+./scripts/bootstrap.sh --build
+```
+
+If you only want code/image refresh without initialization flow:
+
+```bash
+./scripts/restart.sh --build
+```
 
 ## Admin Console (Quick Guide)
 
@@ -94,14 +146,26 @@ After logging in with the admin account:
 ## Daily Operations
 
 ```bash
-# Start / rebuild
+# Start (default production mode)
 ./scripts/start.sh
+
+# Start in development mode
+./scripts/start.sh --dev
 
 # Restart
 ./scripts/restart.sh
 
+# Restart in development mode
+./scripts/restart.sh --dev
+
+# Force rebuild
+./scripts/restart.sh --rebuild
+
 # Stop
 ./scripts/stop.sh
+
+# Stop development mode
+./scripts/stop.sh --dev
 
 # Restart backend only
 ./scripts/restart-backend.sh
@@ -124,6 +188,22 @@ Important runtime variables:
 - `ELASTICSEARCH_URL`
 - `CHROMA_URL`
 - `JWT_SECRET_KEY`
+- `RELEASE_ALIYUN_CODING_PLAN_API_KEY` (optional, injected into Aliyun Coding Plan during first bootstrap)
+
+### Model Provider Configuration
+
+- The platform supports any model provider compatible with:
+  - `openai_compatible`
+  - `anthropic`
+- The open-source seed initializes `Aliyun Coding Plan` and its model list by default.
+- To make it usable right after deployment, set the API key before bootstrap:
+
+```bash
+export RELEASE_ALIYUN_CODING_PLAN_API_KEY='your-api-key'
+./scripts/bootstrap.sh --build
+```
+
+- You can then add more OpenAI-compatible or Anthropic-compatible providers/models in the Admin Console.
 
 ## Migrations
 
@@ -133,7 +213,7 @@ Important runtime variables:
 ## Project Policies
 
 - No personal business data in repository
-- No built-in MCP configuration in runtime
+- Open-source seed only contains sanitized MCP config (`Authorization=<REQUIRED>`), authorization must be provided by users
 - Release process follows SemVer and changelog discipline
 
 ## Documentation
@@ -143,3 +223,8 @@ Important runtime variables:
 - [RELEASE.md](./RELEASE.md)
 - [SECURITY.md](./SECURITY.md)
 - [LICENSE](./LICENSE)
+
+## README Files
+
+- `README.md`: default Chinese README on GitHub
+- `README.en-US.md`: English README

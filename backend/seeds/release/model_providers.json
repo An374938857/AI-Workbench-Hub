@@ -1,0 +1,13 @@
+[
+  {
+    "source_id": 3,
+    "provider_name": "Aliyun Coding Plan",
+    "provider_key": "aliyun",
+    "api_base_url": "https://coding.dashscope.aliyuncs.com/v1",
+    "protocol_type": "openai_compatible",
+    "is_enabled": true,
+    "remark": "阿里云 Coding Plan",
+    "api_key_placeholder": "<REQUIRED>",
+    "api_key_env": "RELEASE_ALIYUN_CODING_PLAN_API_KEY"
+  }
+]

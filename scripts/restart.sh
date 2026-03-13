@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-COMPOSE_FILE="$PROJECT_ROOT/docker/docker-compose.yml"
-COMPOSE_PROJECT_NAME="ai-skill-sharing-platform-release"
-
 source "$SCRIPT_DIR/ensure-docker.sh"
+source "$SCRIPT_DIR/compose-common.sh"
+
+parse_compose_args "$@"
 ensure_docker_ready
 
 cd "$PROJECT_ROOT"
-docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" down
-docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" up -d --build
+if [[ "$REBUILD_FLAG" == "true" ]]; then
+  compose_cmd down --remove-orphans
+  compose_cmd up -d --build
+else
+  compose_cmd down
+  compose_cmd up -d $BUILD_FLAG
+fi

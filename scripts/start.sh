@@ -2,33 +2,33 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-COMPOSE_FILE="$PROJECT_ROOT/docker/docker-compose.yml"
-COMPOSE_PROJECT_NAME="ai-skill-sharing-platform-release"
-
 source "$SCRIPT_DIR/ensure-docker.sh"
+source "$SCRIPT_DIR/compose-common.sh"
+
+parse_compose_args "$@"
 
 echo "=========================================="
 echo "  AI 能力共享平台 - Docker 启动"
 echo "=========================================="
+echo "  模式: $MODE"
 
 ensure_docker_ready
 cd "$PROJECT_ROOT"
 
-docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" up -d --build
+compose_cmd up -d $BUILD_FLAG
 
 echo "⏳ 等待服务健康检查..."
 for svc in redis mysql elasticsearch chroma backend; do
   printf "  %-15s" "$svc"
   for i in $(seq 1 90); do
-    status=$(docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" ps --format json "$svc" 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin).get('Health',''))" 2>/dev/null || echo "")
+    status=$(compose_cmd ps --format json "$svc" 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin).get('Health',''))" 2>/dev/null || echo "")
     if [ "$status" = "healthy" ]; then
       echo "✅"
       break
     fi
     if [ "$i" -eq 90 ]; then
       echo "❌ 超时"
-      docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" logs --tail 80 "$svc" || true
+      compose_cmd logs --tail 80 "$svc" || true
       exit 1
     fi
     sleep 1

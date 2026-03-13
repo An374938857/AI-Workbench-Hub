@@ -40,7 +40,7 @@ const props = withDefaults(defineProps<{
   urlTypes: () => ['URL'],
   markdownType: 'MARKDOWN',
   titlePlaceholder: '资料标题（可选）',
-  urlPlaceholder: '填写 URL（支持自动抓取语雀文档，也支持其他任意链接）',
+  urlPlaceholder: '填写 URL（支持语雀与其他网页链接）',
   markdownPlaceholder: '填写 Markdown 内容',
   uploadTitle: '拖拽文件到这里，或点击选择文件',
   uploadHint: '支持常见文档格式上传',

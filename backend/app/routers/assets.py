@@ -201,6 +201,18 @@ def _is_yuque_url(source_url: str) -> bool:
     return any(host == suffix or host.endswith(f".{suffix}") for suffix in YUQUE_HOST_SUFFIXES)
 
 
+def _has_enabled_dragon_mcp(db: Session) -> bool:
+    return (
+        db.query(Mcp.id)
+        .filter(
+            Mcp.name == "dragon-mcp",
+            Mcp.is_enabled.is_(True),
+        )
+        .first()
+        is not None
+    )
+
+
 def _normalize_markdown_title(preferred_title: str | None) -> str:
     raw_title = (preferred_title or "").strip()
     raw_stem = Path(raw_title).stem if raw_title else "yuque_doc"
@@ -320,7 +332,8 @@ async def create_asset(
     is_yuque_source = body.asset_type == "YUQUE_URL" or (
         body.asset_type == "URL" and source_url and _is_yuque_url(source_url)
     )
-    if is_yuque_source:
+    dragon_enabled = _has_enabled_dragon_mcp(db) if is_yuque_source else False
+    if is_yuque_source and dragon_enabled:
         normalized_title = body.title or "语雀文档"
         asset = Asset(
             scope_type=body.scope_type,
@@ -342,7 +355,7 @@ async def create_asset(
         scope_type=body.scope_type,
         scope_id=body.scope_id,
         node_code=body.node_code,
-        asset_type=body.asset_type,
+        asset_type="URL" if is_yuque_source else body.asset_type,
         title=body.title,
         content=body.content,
         source_url=source_url or None,
@@ -866,7 +879,8 @@ def refetch_asset(
     if not source_url:
         return ApiResponse.error(40001, "该资料没有可重抓的 source_url")
 
-    if _is_yuque_url(source_url):
+    dragon_enabled = _has_enabled_dragon_mcp(db)
+    if _is_yuque_url(source_url) and dragon_enabled:
         asset.refetch_status = "RUNNING"
         asset.source_url = source_url
         asset.last_refetched_at = datetime.now()

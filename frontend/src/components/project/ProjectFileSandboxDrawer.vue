@@ -444,10 +444,10 @@ const assetSyncPolling = useAssetSyncPolling({
   },
   onSettled: (failedCount) => {
     if (failedCount > 0) {
-      ElMessage.warning(`语雀资料同步结束：${failedCount} 条失败，可在详情中查看失败原因`)
+      ElMessage.warning(`链接资料同步结束：${failedCount} 条失败，可在详情中查看失败原因`)
       return
     }
-    ElMessage.success('语雀资料已同步完成')
+    ElMessage.success('链接资料已同步完成')
   },
 })
 
@@ -570,6 +570,7 @@ async function handleSubmitProjectAsset() {
 
   const title = projectAssetForm.value.title.trim() || undefined
   const isUrlAsset = projectAssetForm.value.asset_type === 'URL'
+  let urlSyncInProgress = false
   projectAssetSubmitting.value = true
   try {
     if (projectAssetForm.value.asset_type === 'FILE') {
@@ -608,12 +609,13 @@ async function handleSubmitProjectAsset() {
         source_url: sourceUrl,
       })
       if (String(res.data?.refetch_status || '').toUpperCase() === 'PENDING') {
-        ElMessage.info('语雀资料已提交后台下载，正在同步中...')
+        ElMessage.info('链接资料已提交后台处理，正在同步中...')
+        urlSyncInProgress = true
         assetSyncPolling.markTaskSubmitted()
       }
     }
 
-    ElMessage.success(isUrlAsset ? '资料已保存，后台正在处理' : '项目级资料上传成功')
+    ElMessage.success(isUrlAsset ? (urlSyncInProgress ? '资料已保存，后台正在处理' : '资料已保存') : '项目级资料上传成功')
     projectAssetUploadVisible.value = false
     resetProjectAssetForm()
     emit('refresh')

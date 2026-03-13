@@ -23,6 +23,7 @@ const navItems = computed(() => {
     { path: '/projects', label: '项目' },
     { path: '/requirements', label: '需求池' },
     { path: '/skills', label: '能力广场' },
+    { path: '/mcps', label: 'MCP' },
     { path: '/prompt-templates', label: '提示词' },
     { path: '/chat', label: '历史对话' },
   ]
@@ -57,8 +58,9 @@ const commandPaletteCommands = computed(() => [
   { key: 'meta+2', label: '项目', description: '进入项目列表' },
   { key: 'meta+3', label: '需求池', description: '进入需求池' },
   { key: 'meta+4', label: '能力广场', description: '浏览所有技能' },
-  { key: 'meta+5', label: '提示词', description: '进入提示词列表' },
-  { key: 'meta+6', label: '历史对话', description: '查看历史对话' },
+  { key: 'meta+5', label: 'MCP', description: '浏览 MCP 广场' },
+  { key: 'meta+6', label: '提示词', description: '进入提示词列表' },
+  { key: 'meta+7', label: '历史对话', description: '查看历史对话' },
 ])
 const dialogCommands = [
   { key: '/', label: '快捷指令', description: '输入 / 触发指令补全' },
@@ -158,8 +160,9 @@ register({ key: 'meta+1', handler: () => router.push('/'), label: '首页', grou
 register({ key: 'meta+2', handler: () => router.push('/projects'), label: '项目', group: '导航' })
 register({ key: 'meta+3', handler: () => router.push('/requirements'), label: '需求池', group: '导航' })
 register({ key: 'meta+4', handler: () => router.push('/skills'), label: '能力广场', group: '导航' })
-register({ key: 'meta+5', handler: () => router.push('/prompt-templates'), label: '提示词', group: '导航' })
-register({ key: 'meta+6', handler: () => router.push('/chat'), label: '历史对话', group: '导航' })
+register({ key: 'meta+5', handler: () => router.push('/mcps'), label: 'MCP', group: '导航' })
+register({ key: 'meta+6', handler: () => router.push('/prompt-templates'), label: '提示词', group: '导航' })
+register({ key: 'meta+7', handler: () => router.push('/chat'), label: '历史对话', group: '导航' })
 
 watch(() => route.path, () => {
   const resolved = resolveMenuPath(route.path)
