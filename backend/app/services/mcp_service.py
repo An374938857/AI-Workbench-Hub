@@ -177,11 +177,15 @@ async def run_mcp_connectivity_test(
     db: Session,
     mcp: Mcp,
     *,
-    connect_timeout_seconds: int = 10,
-    list_tools_timeout_seconds: int = 10,
+    connect_timeout_seconds: int | None = None,
+    list_tools_timeout_seconds: int | None = None,
 ) -> dict:
     """执行单个 MCP 连通性测试并持久化测试结果与健康状态。"""
     config_json = get_decrypted_config(mcp)
+    # stdio MCP 首次启动可能触发 npx/uvx 拉包，预留更宽松的连通性测试超时窗口。
+    base_timeout_seconds = max(60, int(mcp.timeout_seconds or 0))
+    connect_timeout_seconds = connect_timeout_seconds or base_timeout_seconds
+    list_tools_timeout_seconds = list_tools_timeout_seconds or base_timeout_seconds
     manager = get_client_manager()
     breaker = get_circuit_breaker_registry().get_or_create(
         mcp_id=mcp.id,
@@ -193,11 +197,19 @@ async def run_mcp_connectivity_test(
     client = None
 
     try:
-        client = await asyncio.wait_for(
-            manager.create_temp_client(config_json, mcp.transport_type),
-            timeout=connect_timeout_seconds,
-        )
-        tools = await asyncio.wait_for(client.list_tools(), timeout=list_tools_timeout_seconds)
+        try:
+            client = await asyncio.wait_for(
+                manager.create_temp_client(config_json, mcp.transport_type),
+                timeout=connect_timeout_seconds,
+            )
+        except asyncio.TimeoutError as e:
+            raise TimeoutError(f"MCP 连接超时（{connect_timeout_seconds}s）") from e
+
+        try:
+            tools = await asyncio.wait_for(client.list_tools(), timeout=list_tools_timeout_seconds)
+        except asyncio.TimeoutError as e:
+            raise TimeoutError(f"MCP 工具列表获取超时（{list_tools_timeout_seconds}s）") from e
+
         elapsed = int((time.monotonic() - start) * 1000)
         sync_result = sync_tools_from_list(db, mcp.id, tools)
 

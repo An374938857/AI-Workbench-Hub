@@ -6,7 +6,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     curl \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
+
+# Align MCP runtime with personal edition: provide uv/uvx for Python MCP servers.
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:${PATH}"
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
