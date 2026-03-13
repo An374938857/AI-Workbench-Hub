@@ -9,9 +9,17 @@ ensure_docker_ready
 
 cd "$PROJECT_ROOT"
 if [[ "$REBUILD_FLAG" == "true" ]]; then
+  echo "🧹 清理容器与网络（含孤儿容器）..."
   compose_cmd down --remove-orphans
-  compose_cmd up -d --build
+  echo "🔁 重新启动（重建镜像）..."
+  exec "$SCRIPT_DIR/start.sh" --build ${MODE:+--$MODE}
 else
+  echo "🧹 清理容器与网络..."
   compose_cmd down
-  compose_cmd up -d $BUILD_FLAG
+  echo "🔁 重新启动..."
+  if [[ -n "$BUILD_FLAG" ]]; then
+    exec "$SCRIPT_DIR/start.sh" "$BUILD_FLAG" ${MODE:+--$MODE}
+  else
+    exec "$SCRIPT_DIR/start.sh" ${MODE:+--$MODE}
+  fi
 fi
