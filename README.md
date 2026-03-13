@@ -14,15 +14,14 @@
   <img alt="Database" src="https://img.shields.io/badge/Database-MySQL%208-F59E0B?style=for-the-badge&logo=mysql&logoColor=ffffff" />
 </p>
 
-<p align="center">
-  <a href="./docs/V1.0.0-功能说明.md">
-    <img alt="功能说明文档" src="https://img.shields.io/badge/查看功能说明文档-V1.0.0-2563EB?style=for-the-badge&logo=readthedocs&logoColor=ffffff" />
-  </a>
-</p>
-
 # AI一站式工作台（AI Workbench Hub）
 
 AI一站式工作台，一个主要面向项目经理、产品经理、研发人员及知识工作者的开源协作平台。它帮助你统一管理项目、需求、资料与对话内容，通过 Web 平台集中组织与分发信息，支持 Docker 本地部署与私有化运行，并可按需二次开发，打造贴合团队流程的工作中枢。
+
+## 功能说明（快速入口）
+
+> 首次使用建议先阅读功能说明文档：  
+> **[V1.0.0 功能说明（含系统截图）](./docs/V1.0.0-功能说明.md)**
 
 ## 作者
 
