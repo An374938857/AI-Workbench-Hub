@@ -1,6 +1,7 @@
 interface CommandDispatcherHandlers {
   openModelList: () => Promise<void>
   openSkillList: () => Promise<void>
+  openMcpList: () => Promise<void>
   openTemplateList: () => Promise<void>
   toggleTheme: () => void
   onNewChat?: () => Promise<void> | void
@@ -44,6 +45,10 @@ export function useCommandDispatcher(handlers: CommandDispatcherHandlers) {
       return
     }
 
+    if (name === '/mcps') {
+      await handlers.openMcpList()
+      return
+    }
 
     if (name === '/prompt') {
       await handlers.openTemplateList()

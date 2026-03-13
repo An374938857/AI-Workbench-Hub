@@ -261,6 +261,7 @@ async function loadAllCommands() {
   if (allCommands.value.length > 0) return
   const commands: any[] = [
     { name: '/skills', label: 'List Skills', description: '浏览所有技能' },
+    { name: '/mcps', label: 'List MCPs', description: '浏览 MCP 服务' },
     { name: '/prompt', label: '选择模板', description: '选择提示词模板' },
     { name: '/model', label: '切换模型', description: '切换 AI 模型' },
     { name: '/theme', label: '切换主题', description: '切换深色/浅色主题' },
@@ -362,6 +363,7 @@ async function handleSkillCommandSelection(skillData: any) {
 const { executeCommand } = useCommandDispatcher({
   openModelList,
   openSkillList,
+  openMcpList,
   openTemplateList,
   toggleTheme: () => {
     const btn = document.querySelector('.theme-toggle') as HTMLElement
@@ -600,6 +602,7 @@ function clearSkill() {
 // 快捷操作
 const quickActions = [
   { label: '浏览技能', icon: '🎯', action: openSkillList },
+  { label: '查看 MCP', icon: '🔌', action: openMcpList },
   { label: '选择模型', icon: '🤖', action: openModelList },
   { label: '历史对话', icon: '💬', action: () => router.push('/chat') },
 ]

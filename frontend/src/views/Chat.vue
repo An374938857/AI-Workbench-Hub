@@ -1192,6 +1192,7 @@ async function loadAllCommands() {
     { name: '/prompt', label: '选择模板', description: '选择提示词模板' },
     { name: '/sandbox', label: '沙箱文件', description: '打开沙箱文件管理' },
     { name: '/skills', label: 'List Skills', description: '浏览所有技能' },
+    { name: '/mcps', label: 'List MCPs', description: '浏览 MCP 服务' },
     { name: '/model', label: '切换模型', description: '切换 AI 模型' },
     { name: '/compact', label: '压缩上下文', description: '压缩对话历史' },
     { name: '/export', label: '导出对话', description: '导出当前对话' },
@@ -3236,6 +3237,7 @@ function handlePaletteCommandSelect(command: any) {
 const { executeCommand } = useCommandDispatcher({
   openModelList,
   openSkillList,
+  openMcpList,
   openTemplateList,
   toggleTheme: () => {
     const themeToggle = document.querySelector('.theme-toggle') as HTMLElement
