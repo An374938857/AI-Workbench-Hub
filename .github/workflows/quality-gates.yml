@@ -44,6 +44,34 @@ PY
             -H 'Content-Type: application/json' \
             -d '{"username":"admin","password":"admin123"}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"]["access_token"])')
           test -n "$token"
+      - name: Required schema tables assertion
+        run: |
+          required_count=$(docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml \
+            exec -T mysql mysql -uroot -ppassword -D ai_platform -Nse \
+            "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='ai_platform' AND table_name IN ('conversation_compression_logs','custom_commands','model_fallback_configs','model_fallback_logs','model_comparisons');")
+          test "$required_count" = "5"
+      - name: Conversations messages route smoke
+        run: |
+          token=$(curl -fsS -X POST http://localhost:15173/api/auth/login \
+            -H 'Content-Type: application/json' \
+            -d '{"username":"admin","password":"admin123"}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"]["access_token"])')
+
+          conv_id=$(curl -fsS -X POST http://localhost:15173/api/conversations \
+            -H "Authorization: Bearer $token" \
+            -H 'Content-Type: application/json' \
+            -d '{}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"]["conversation_id"])')
+
+          curl -fsS -X PATCH http://localhost:15173/api/users/me/auto-route \
+            -H "Authorization: Bearer $token" \
+            -H 'Content-Type: application/json' \
+            -d '{"enabled":false}' >/dev/null
+
+          stream=$(curl -fsS -X POST "http://localhost:15173/api/conversations/${conv_id}/messages" \
+            -H "Authorization: Bearer $token" \
+            -H 'Content-Type: application/json' \
+            -d '{"content":"schema smoke","file_ids":[],"provider_id":999999,"model_name":"schema-smoke-invalid"}')
+
+          printf '%s' "$stream" | grep -q 'event: error'
       - name: Print compose status on failure
         if: failure()
         run: docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml ps

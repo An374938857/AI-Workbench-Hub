@@ -35,6 +35,18 @@ if ! compose_cmd run --rm backend alembic upgrade head; then
   exit 1
 fi
 
+echo "🧪 校验数据库关键表 (schema_check)..."
+if ! compose_cmd run --rm backend python scripts/check_required_tables.py; then
+  echo "❌ 数据库结构校验失败（检测到关键表缺失）"
+  echo "   修复建议："
+  echo "   1) 执行迁移：docker compose -p \"$COMPOSE_PROJECT_NAME\" $(compose_file_args) run --rm backend alembic upgrade head"
+  echo "   2) 执行排查 SQL："
+  echo "      SELECT table_name FROM information_schema.tables"
+  echo "      WHERE table_schema = DATABASE()"
+  echo "      AND table_name IN ('conversation_compression_logs','custom_commands','model_fallback_configs','model_fallback_logs','model_comparisons');"
+  exit 1
+fi
+
 echo "🔎 初始化 ES 索引 (init_es_index)..."
 if ! compose_cmd run --rm backend python scripts/init_es_index.py; then
   echo "❌ ES 索引初始化失败"

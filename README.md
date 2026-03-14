@@ -115,6 +115,26 @@ curl -fsS http://localhost:15173 >/dev/null
 
 两个命令都返回成功即表示“从 clone 到服务可访问”链路可用。
 
+### 4.2 缺表故障快速排查（发消息 500）
+
+若登录成功但“发送消息”报 500，可优先检查关键表是否缺失：
+
+```bash
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml \
+  exec -T mysql mysql -uroot -ppassword -D ai_platform -e \
+  "SELECT table_name FROM information_schema.tables \
+   WHERE table_schema='ai_platform' \
+     AND table_name IN ('conversation_compression_logs','custom_commands','model_fallback_configs','model_fallback_logs','model_comparisons');"
+```
+
+一键修复：
+
+```bash
+./scripts/bootstrap.sh --prod
+```
+
+说明：管理后台“模型连通性测试通过”仅代表模型 API 可达，不代表对话链路可用。对话链路还依赖数据库表与上下文压缩等流程。
+
 如果遇到 `failed to fetch anonymous token ... EOF`，属于 Docker Hub 网络波动。脚本已自动重试；若仍失败，请先手工执行：
 
 ```bash

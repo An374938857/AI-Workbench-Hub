@@ -36,6 +36,10 @@ from app.models.workflow import (
     WorkflowTransitionLog,
 )
 from app.models.asset import Asset
+from app.models.conversation_compression_log import ConversationCompressionLog
+from app.models.custom_command import CustomCommand
+from app.models.model_fallback import ModelFallbackConfig, ModelFallbackLog
+from app.models.model_comparison import ModelComparison
 from app.models.reference import (
     ConversationReferenceState,
     ReferenceScopeSnapshot,
@@ -88,6 +92,11 @@ __all__ = [
     "WorkflowTransitionLog",
     "WorkflowInstanceNodeOutput",
     "Asset",
+    "ConversationCompressionLog",
+    "CustomCommand",
+    "ModelFallbackConfig",
+    "ModelFallbackLog",
+    "ModelComparison",
     "ConversationReferenceState",
     "ReferenceScopeSnapshot",
     "FileLightIndex",

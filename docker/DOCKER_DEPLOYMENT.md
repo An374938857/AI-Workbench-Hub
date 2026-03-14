@@ -79,3 +79,24 @@ curl -fsS http://localhost:15173 >/dev/null
 
 现象：脚本提示未检测到 `docker compose`。  
 处理：升级 Docker Desktop / Docker Engine 并确认 `docker compose version` 可执行。
+
+### 4) 登录正常但发消息 500（缺表）
+
+现象：管理后台模型连通性测试通过，但对话发送时报 500。  
+说明：模型连通性测试只覆盖模型 API，不覆盖对话链路依赖的数据库表。
+
+快速验证：
+
+```bash
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml \
+  exec -T mysql mysql -uroot -ppassword -D ai_platform -e \
+  "SELECT table_name FROM information_schema.tables \
+   WHERE table_schema='ai_platform' \
+     AND table_name IN ('conversation_compression_logs','custom_commands','model_fallback_configs','model_fallback_logs','model_comparisons');"
+```
+
+修复命令：
+
+```bash
+./scripts/bootstrap.sh --prod
+```

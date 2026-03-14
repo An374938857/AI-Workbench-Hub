@@ -58,7 +58,17 @@ function buildHttpErrorMessage(response: Response, responseText?: string): strin
   if (responseText) {
     try {
       const parsed = JSON.parse(responseText)
-      backendMsg = parsed?.message || parsed?.error || parsed?.data?.message || ''
+      const detail = parsed?.detail
+      if (typeof detail === 'string') {
+        backendMsg = detail
+      } else if (Array.isArray(detail)) {
+        backendMsg = detail.map((item) => item?.msg || item?.message || '').filter(Boolean).join('; ')
+      } else if (detail && typeof detail === 'object') {
+        backendMsg = detail?.message || detail?.error || ''
+      }
+      if (!backendMsg) {
+        backendMsg = parsed?.message || parsed?.error || parsed?.data?.message || ''
+      }
     } catch {
       backendMsg = ''
     }
@@ -66,7 +76,7 @@ function buildHttpErrorMessage(response: Response, responseText?: string): strin
 
   if (backendMsg) return backendMsg
   if (status >= 500) {
-    return `服务异常（HTTP ${status}）。可能是模型连接超时，系统会自动重试/降级，请稍后再试。`
+    return `服务异常（HTTP ${status}）。请查看后端日志中的具体错误后重试。`
   }
   return `${statusText}（HTTP ${status}）`
 }

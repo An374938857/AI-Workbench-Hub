@@ -39,6 +39,13 @@ if ! compose_cmd run --rm backend alembic upgrade head; then
   exit 1
 fi
 
+echo "🧪 数据库关键表校验..."
+if ! compose_cmd run --rm backend python scripts/check_required_tables.py; then
+  echo "❌ 数据库结构校验失败（检测到关键表缺失）"
+  echo "   修复建议：docker compose -p \"$COMPOSE_PROJECT_NAME\" $(compose_file_args) run --rm backend alembic upgrade head"
+  exit 1
+fi
+
 ensure_service_image_ready frontend || exit 1
 
 echo ""

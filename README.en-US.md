@@ -101,6 +101,26 @@ curl -fsS http://localhost:15173 >/dev/null
 
 If both commands succeed, clone-to-running installation is healthy.
 
+### 4.2 Missing Table Troubleshooting (500 on send message)
+
+If login succeeds but sending a message returns HTTP 500, first verify that critical tables exist:
+
+```bash
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml \
+  exec -T mysql mysql -uroot -ppassword -D ai_platform -e \
+  "SELECT table_name FROM information_schema.tables \
+   WHERE table_schema='ai_platform' \
+     AND table_name IN ('conversation_compression_logs','custom_commands','model_fallback_configs','model_fallback_logs','model_comparisons');"
+```
+
+One-command repair:
+
+```bash
+./scripts/bootstrap.sh --prod
+```
+
+Note: “model connectivity test passed” in Admin Console only verifies model API reachability. It does not guarantee the full conversation runtime path, which also depends on DB schema and compression context flow.
+
 If you see `failed to fetch anonymous token ... EOF`, this is usually a transient Docker Hub network issue. Scripts already retry automatically; if it still fails, run:
 
 ```bash
