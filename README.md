@@ -55,7 +55,7 @@ AI一站式工作台，一个主要面向项目经理、产品经理、研发人
 ### 1. 克隆仓库
 
 ```bash
-git clone <your-repo-url>
+git clone git@github.com:An374938857/AI-Workbench-Hub.git
 cd AI-Workbench-Hub
 ```
 
