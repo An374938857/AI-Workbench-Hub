@@ -601,6 +601,8 @@ function clearSkill() {
 
 // 快捷操作
 const quickActions = [
+  { label: '项目', icon: '📁', action: () => router.push('/projects') },
+  { label: '需求池', icon: '🗂️', action: () => router.push('/requirements') },
   { label: '浏览技能', icon: '🎯', action: openSkillList },
   { label: '查看 MCP', icon: '🔌', action: openMcpList },
   { label: '选择模型', icon: '🤖', action: openModelList },
