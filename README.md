@@ -69,16 +69,7 @@ cd AI-Workbench-Hub
 
 - 已安装并启动 Docker Desktop / Docker Engine
 - 已安装 Docker Compose v2（`docker compose version` 可用）
-- 已准备 `backend/.env`（从模板复制）
-  ```bash
-  cp backend/.env.example backend/.env
-  ```
-- 必须配置 `ENCRYPTION_KEY`（用于模型 API Key / MCP 配置加密）：
-  ```bash
-  docker run --rm python:3.11-alpine python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-  # 将输出写入 backend/.env
-  # ENCRYPTION_KEY=<生成值>
-  ```
+- 首次启动时脚本会自动创建 `backend/.env` 并自动写入 `ENCRYPTION_KEY`（无需手工修改）
 - 以下端口未被占用：
   - `15173`（前端）
   - `18080`（后端）
@@ -219,7 +210,7 @@ export RELEASE_ALIYUN_CODING_PLAN_API_KEY='你的API Key'
 
 ## 配置
 
-使用 `backend/.env.example` 作为模板。
+配置由启动脚本自动初始化（若缺失会创建 `backend/.env` 并补齐关键项），你也可以基于 `backend/.env.example` 自行覆盖。
 
 关键环境变量：
 
@@ -228,7 +219,7 @@ export RELEASE_ALIYUN_CODING_PLAN_API_KEY='你的API Key'
 - `ELASTICSEARCH_URL`
 - `CHROMA_URL`
 - `JWT_SECRET_KEY`
-- `ENCRYPTION_KEY`（必填，缺失会导致初始化失败）
+- `ENCRYPTION_KEY`（必填；脚本在缺失时会自动生成并写入 `backend/.env`）
 - `RELEASE_ALIYUN_CODING_PLAN_API_KEY`（可选，首次 `bootstrap` 时注入 Aliyun Coding Plan 密钥）
 
 ### 模型服务商配置说明

@@ -33,7 +33,7 @@ if ! compose_cmd run --rm backend alembic upgrade head; then
   echo "❌ 数据库迁移失败"
   echo "   修复建议："
   echo "   1) 查看日志：docker compose -p \"$COMPOSE_PROJECT_NAME\" $(compose_file_args) logs --tail 120 backend mysql"
-  echo "   2) 确认 ENCRYPTION_KEY / DATABASE_URL 配置后重试"
+  echo "   2) 确认 DATABASE_URL 等配置有效后重试"
   exit 1
 fi
 

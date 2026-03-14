@@ -16,25 +16,7 @@ run_compose_common_subshell '
   test "$BUILD_FLAG" = "--build"
 '
 
-echo "[contract] ensure_encryption_key_configured should fail when key is missing..."
-tmp_env_missing="$(mktemp)"
-set +e
-run_compose_common_subshell "
-  BACKEND_ENV_FILE=\"$tmp_env_missing\"
-  source scripts/compose-common.sh
-  unset ENCRYPTION_KEY
-  ensure_encryption_key_configured
-" >/tmp/entrypoint_missing_key.out 2>&1
-rc_missing=$?
-set -e
-rm -f "$tmp_env_missing"
-if [[ "$rc_missing" -eq 0 ]]; then
-  echo "expected failure for missing ENCRYPTION_KEY"
-  exit 1
-fi
-grep -q "缺少 ENCRYPTION_KEY" /tmp/entrypoint_missing_key.out
-
-echo "[contract] ensure_encryption_key_configured should pass when key is set..."
+echo "[contract] ensure_encryption_key_configured should persist provided key..."
 tmp_env_ok="$(mktemp)"
 cat >"$tmp_env_ok" <<'EOF'
 ENCRYPTION_KEY=test-key
@@ -45,6 +27,23 @@ run_compose_common_subshell "
   load_backend_env
   ensure_encryption_key_configured
 "
+grep -q "^ENCRYPTION_KEY=test-key$" "$tmp_env_ok"
 rm -f "$tmp_env_ok"
+
+echo "[contract] ensure_encryption_key_configured should auto-generate key when missing..."
+tmp_env_missing="$(mktemp)"
+tmp_template="$(mktemp)"
+cat >"$tmp_template" <<'EOF'
+DATABASE_URL=mysql+pymysql://root:password@localhost:3306/ai_platform?charset=utf8mb4
+EOF
+run_compose_common_subshell "
+  BACKEND_ENV_FILE=\"$tmp_env_missing\"
+  BACKEND_ENV_TEMPLATE_FILE=\"$tmp_template\"
+  source scripts/compose-common.sh
+  unset ENCRYPTION_KEY
+  ensure_encryption_key_configured
+"
+grep -Eq '^ENCRYPTION_KEY=[A-Za-z0-9_-]{43}=$' "$tmp_env_missing"
+rm -f "$tmp_env_missing" "$tmp_template"
 
 echo "[contract] ok"

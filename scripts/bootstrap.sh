@@ -51,9 +51,8 @@ echo "🌱 导入发布版种子数据 (init_release_seed)..."
 if ! compose_cmd run --rm backend python scripts/init_release_seed.py; then
   echo "❌ 发布种子导入失败"
   echo "   修复建议："
-  echo "   1) 确认 ENCRYPTION_KEY 已配置（backend/.env 或当前 shell）"
-  echo "   2) 查看日志：docker compose -p \"$COMPOSE_PROJECT_NAME\" $(compose_file_args) logs --tail 160 backend"
-  echo "   3) 修复后重试：./scripts/bootstrap.sh ${MODE:+--$MODE}"
+  echo "   1) 查看日志：docker compose -p \"$COMPOSE_PROJECT_NAME\" $(compose_file_args) logs --tail 160 backend"
+  echo "   2) 修复后重试：./scripts/bootstrap.sh ${MODE:+--$MODE}"
   exit 1
 fi
 

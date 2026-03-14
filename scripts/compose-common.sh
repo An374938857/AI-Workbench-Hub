@@ -4,6 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 COMPOSE_PROJECT_NAME="ai-skill-sharing-platform-release"
 BACKEND_ENV_FILE="${BACKEND_ENV_FILE:-$PROJECT_ROOT/backend/.env}"
+BACKEND_ENV_TEMPLATE_FILE="${BACKEND_ENV_TEMPLATE_FILE:-$PROJECT_ROOT/backend/.env.example}"
 MODE="prod"
 BUILD_FLAG=""
 REBUILD_FLAG="false"
@@ -71,18 +72,79 @@ load_backend_env() {
   fi
 }
 
-ensure_encryption_key_configured() {
-  if [[ -n "${ENCRYPTION_KEY:-}" ]]; then
+ensure_backend_env_file_exists() {
+  if [[ -f "$BACKEND_ENV_FILE" ]]; then
     return 0
   fi
 
-  echo "❌ 缺少 ENCRYPTION_KEY，初始化会在种子导入阶段失败"
-  echo "   修复建议："
-  echo "   1) 复制模板：cp backend/.env.example backend/.env"
-  echo "   2) 生成密钥：docker run --rm python:3.11-alpine python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())'"
-  echo "   3) 写入 backend/.env：ENCRYPTION_KEY=<上一步输出>"
-  echo "   4) 重新执行：./scripts/bootstrap.sh"
-  exit 1
+  if [[ -f "$BACKEND_ENV_TEMPLATE_FILE" ]]; then
+    cp "$BACKEND_ENV_TEMPLATE_FILE" "$BACKEND_ENV_FILE"
+    echo "ℹ️  已自动创建 backend/.env（来源: backend/.env.example）"
+    return 0
+  fi
+
+  : >"$BACKEND_ENV_FILE"
+  echo "ℹ️  未找到 backend/.env.example，已创建空的 backend/.env"
+}
+
+upsert_env_key_value() {
+  local key="$1"
+  local value="$2"
+  local target_file="$3"
+  local tmp_file
+  tmp_file="$(mktemp)"
+
+  awk -v key="$key" -v value="$value" '
+    BEGIN { updated = 0 }
+    {
+      if ($0 ~ ("^" key "=")) {
+        if (!updated) {
+          print key "=" value
+          updated = 1
+        }
+        next
+      }
+      print $0
+    }
+    END {
+      if (!updated) {
+        print key "=" value
+      }
+    }
+  ' "$target_file" >"$tmp_file"
+
+  mv "$tmp_file" "$target_file"
+}
+
+generate_encryption_key_via_docker() {
+  docker run --rm python:3.11-alpine \
+    python -c "import base64,os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())"
+}
+
+auto_configure_encryption_key() {
+  local generated_key
+  if ! generated_key="$(generate_encryption_key_via_docker)"; then
+    echo "❌ 自动生成 ENCRYPTION_KEY 失败"
+    echo "   修复建议：确认 Docker 网络可访问镜像仓库后重试"
+    return 1
+  fi
+
+  upsert_env_key_value "ENCRYPTION_KEY" "$generated_key" "$BACKEND_ENV_FILE"
+  export ENCRYPTION_KEY="$generated_key"
+  echo "✅ 已自动生成并写入 ENCRYPTION_KEY 到 backend/.env"
+  return 0
+}
+
+ensure_encryption_key_configured() {
+  ensure_backend_env_file_exists
+  load_backend_env
+
+  if [[ -n "${ENCRYPTION_KEY:-}" ]]; then
+    upsert_env_key_value "ENCRYPTION_KEY" "$ENCRYPTION_KEY" "$BACKEND_ENV_FILE"
+    return 0
+  fi
+
+  auto_configure_encryption_key || exit 1
 }
 
 is_port_in_use() {

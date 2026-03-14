@@ -24,25 +24,12 @@
 
 ## 前置准备
 
-1. 复制配置模板：
+无需手工编辑 `.env`。`bootstrap/start` 脚本会自动：
 
-```bash
-cp backend/.env.example backend/.env
-```
+1. 若 `backend/.env` 不存在，则基于 `backend/.env.example` 自动创建
+2. 若 `ENCRYPTION_KEY` 缺失，则自动生成并写入 `backend/.env`
 
-2. 生成并写入 `ENCRYPTION_KEY`：
-
-```bash
-docker run --rm python:3.11-alpine python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-```
-
-把输出写入 `backend/.env`：
-
-```bash
-ENCRYPTION_KEY=<generated-value>
-```
-
-> `ENCRYPTION_KEY` 缺失会导致 `bootstrap` 在种子导入阶段失败。
+> `ENCRYPTION_KEY` 用于模型密钥和 MCP 配置加密，脚本会在启动前自动保证其可用。
 
 ## 启动命令
 
@@ -80,8 +67,8 @@ curl -fsS http://localhost:15173 >/dev/null
 
 ### 1) `ENCRYPTION_KEY` 缺失
 
-现象：`bootstrap` 在 `init_release_seed.py` 失败。  
-处理：按“前置准备”补齐 `backend/.env` 的 `ENCRYPTION_KEY` 后重试。
+现象：启动日志提示自动生成失败（通常是 Docker 镜像拉取失败或网络问题）。  
+处理：确认 Docker 网络可用后重试 `./scripts/bootstrap.sh`。
 
 ### 2) 端口冲突
 

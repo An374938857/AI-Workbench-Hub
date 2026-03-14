@@ -55,16 +55,7 @@ cd AI-Workbench-Hub
 
 - Docker Desktop / Docker Engine is installed and running
 - Docker Compose v2 is available (`docker compose version`)
-- Prepare `backend/.env` from template:
-  ```bash
-  cp backend/.env.example backend/.env
-  ```
-- `ENCRYPTION_KEY` is required (used to encrypt model keys and MCP config):
-  ```bash
-  docker run --rm python:3.11-alpine python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-  # write into backend/.env
-  # ENCRYPTION_KEY=<generated-value>
-  ```
+- On first startup, scripts automatically create `backend/.env` and write `ENCRYPTION_KEY` (no manual editing required)
 - The following host ports are available:
   - `15173` (frontend)
   - `18080` (backend)
@@ -205,7 +196,7 @@ After logging in with the admin account:
 
 ## Configuration
 
-Use `backend/.env.example` as template.
+Configuration is auto-initialized by startup scripts (missing `backend/.env` and required keys are auto-created). You can still customize values based on `backend/.env.example`.
 
 Important runtime variables:
 
