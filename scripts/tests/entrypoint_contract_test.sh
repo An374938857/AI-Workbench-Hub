@@ -19,7 +19,7 @@ run_compose_common_subshell '
 echo "[contract] ensure_encryption_key_configured should persist provided key..."
 tmp_env_ok="$(mktemp)"
 cat >"$tmp_env_ok" <<'EOF'
-ENCRYPTION_KEY=test-key
+ENCRYPTION_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=
 EOF
 run_compose_common_subshell "
   BACKEND_ENV_FILE=\"$tmp_env_ok\"
@@ -27,7 +27,7 @@ run_compose_common_subshell "
   load_backend_env
   ensure_encryption_key_configured
 "
-grep -q "^ENCRYPTION_KEY=test-key$" "$tmp_env_ok"
+grep -q "^ENCRYPTION_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=$" "$tmp_env_ok"
 rm -f "$tmp_env_ok"
 
 echo "[contract] ensure_encryption_key_configured should auto-generate key when missing..."
@@ -45,5 +45,20 @@ run_compose_common_subshell "
 "
 grep -Eq '^ENCRYPTION_KEY=[A-Za-z0-9_-]{43}=$' "$tmp_env_missing"
 rm -f "$tmp_env_missing" "$tmp_template"
+
+echo "[contract] ensure_encryption_key_configured should replace placeholder key..."
+tmp_env_placeholder="$(mktemp)"
+cat >"$tmp_env_placeholder" <<'EOF'
+ENCRYPTION_KEY=your-fernet-key-here
+EOF
+run_compose_common_subshell "
+  BACKEND_ENV_FILE=\"$tmp_env_placeholder\"
+  source scripts/compose-common.sh
+  load_backend_env
+  ensure_encryption_key_configured
+"
+grep -Eq '^ENCRYPTION_KEY=[A-Za-z0-9_-]{43}=$' "$tmp_env_placeholder"
+grep -vq '^ENCRYPTION_KEY=your-fernet-key-here$' "$tmp_env_placeholder"
+rm -f "$tmp_env_placeholder"
 
 echo "[contract] ok"

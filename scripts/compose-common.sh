@@ -121,6 +121,11 @@ generate_encryption_key_via_docker() {
     python -c "import base64,os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())"
 }
 
+is_valid_fernet_key() {
+  local value="$1"
+  [[ "$value" =~ ^[A-Za-z0-9_-]{43}=$ ]]
+}
+
 auto_configure_encryption_key() {
   local generated_key
   if ! generated_key="$(generate_encryption_key_via_docker)"; then
@@ -139,9 +144,13 @@ ensure_encryption_key_configured() {
   ensure_backend_env_file_exists
   load_backend_env
 
-  if [[ -n "${ENCRYPTION_KEY:-}" ]]; then
+  if [[ -n "${ENCRYPTION_KEY:-}" ]] && is_valid_fernet_key "${ENCRYPTION_KEY:-}"; then
     upsert_env_key_value "ENCRYPTION_KEY" "$ENCRYPTION_KEY" "$BACKEND_ENV_FILE"
     return 0
+  fi
+
+  if [[ -n "${ENCRYPTION_KEY:-}" ]]; then
+    echo "⚠️  检测到 ENCRYPTION_KEY 不是合法 Fernet key，将自动重新生成"
   fi
 
   auto_configure_encryption_key || exit 1

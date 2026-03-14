@@ -70,6 +70,7 @@ cd AI-Workbench-Hub
 - 已安装并启动 Docker Desktop / Docker Engine
 - 已安装 Docker Compose v2（`docker compose version` 可用）
 - 首次启动时脚本会自动创建 `backend/.env` 并自动写入 `ENCRYPTION_KEY`（无需手工修改）
+- 若检测到占位值或非法 `ENCRYPTION_KEY`（如 `your-fernet-key-here`），脚本会自动替换为合法值
 - 以下端口未被占用：
   - `15173`（前端）
   - `18080`（后端）

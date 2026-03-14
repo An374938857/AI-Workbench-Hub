@@ -56,6 +56,7 @@ cd AI-Workbench-Hub
 - Docker Desktop / Docker Engine is installed and running
 - Docker Compose v2 is available (`docker compose version`)
 - On first startup, scripts automatically create `backend/.env` and write `ENCRYPTION_KEY` (no manual editing required)
+- If a placeholder/invalid key is detected (for example `your-fernet-key-here`), scripts will auto-replace it with a valid Fernet key
 - The following host ports are available:
   - `15173` (frontend)
   - `18080` (backend)

@@ -27,7 +27,7 @@
 无需手工编辑 `.env`。`bootstrap/start` 脚本会自动：
 
 1. 若 `backend/.env` 不存在，则基于 `backend/.env.example` 自动创建
-2. 若 `ENCRYPTION_KEY` 缺失，则自动生成并写入 `backend/.env`
+2. 若 `ENCRYPTION_KEY` 缺失、是占位值、或格式非法，则自动生成并写入 `backend/.env`
 
 > `ENCRYPTION_KEY` 用于模型密钥和 MCP 配置加密，脚本会在启动前自动保证其可用。
 
