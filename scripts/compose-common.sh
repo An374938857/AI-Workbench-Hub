@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+if [[ -z "${SCRIPT_DIR:-}" ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
+if [[ -z "${PROJECT_ROOT:-}" ]]; then
+  PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
 COMPOSE_PROJECT_NAME="ai-skill-sharing-platform-release"
 BACKEND_ENV_FILE="${BACKEND_ENV_FILE:-$PROJECT_ROOT/backend/.env}"
 BACKEND_ENV_TEMPLATE_FILE="${BACKEND_ENV_TEMPLATE_FILE:-$PROJECT_ROOT/backend/.env.example}"
@@ -45,13 +49,16 @@ compose_file_args() {
   else
     args+=(-f "$PROJECT_ROOT/docker/docker-compose.prod.yml")
   fi
-  echo "${args[@]}"
+  printf '%q ' "${args[@]}"
 }
 
 compose_cmd() {
-  local compose_files
-  # shellcheck disable=SC2207
-  compose_files=($(compose_file_args))
+  local compose_files=(-f "$PROJECT_ROOT/docker/docker-compose.yml")
+  if [[ "$MODE" == "dev" ]]; then
+    compose_files+=(-f "$PROJECT_ROOT/docker/docker-compose.dev.yml")
+  else
+    compose_files+=(-f "$PROJECT_ROOT/docker/docker-compose.prod.yml")
+  fi
   docker compose -p "$COMPOSE_PROJECT_NAME" "${compose_files[@]}" "$@"
 }
 
