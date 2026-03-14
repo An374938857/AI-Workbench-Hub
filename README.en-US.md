@@ -41,7 +41,7 @@ AI Workbench Hub is an open-source collaboration platform primarily designed for
 ### 1. Clone repository
 
 ```bash
-git clone <your-repo-url>
+git clone git@github.com:An374938857/AI-Workbench-Hub.git
 cd AI-Workbench-Hub
 ```
 
