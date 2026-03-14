@@ -37,6 +37,13 @@ PY
         run: |
           curl -fsS http://localhost:18080/api/health
           curl -fsS http://localhost:15173 >/dev/null
+          curl -fsS http://localhost:15173/api/health
+      - name: Frontend API proxy login check
+        run: |
+          token=$(curl -fsS -X POST http://localhost:15173/api/auth/login \
+            -H 'Content-Type: application/json' \
+            -d '{"username":"admin","password":"admin123"}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"]["access_token"])')
+          test -n "$token"
       - name: Print compose status on failure
         if: failure()
         run: docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml ps
