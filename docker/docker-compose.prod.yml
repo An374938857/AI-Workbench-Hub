@@ -6,4 +6,7 @@ services:
       - APP_ENV=production
 
   frontend:
-    command: sh -c "npm run dev -- --host 0.0.0.0"
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+      target: prod

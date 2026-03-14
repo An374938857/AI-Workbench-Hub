@@ -10,6 +10,12 @@ services:
     command: sh -c "uvicorn app.main:app --reload --host 0.0.0.0 --port 8080"
 
   frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+      target: dev
+    ports:
+      - "15173:5173"
     volumes:
       - ../frontend:/app
       - /app/node_modules

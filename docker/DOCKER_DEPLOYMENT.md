@@ -1,151 +1,94 @@
-# Docker 部署说明
+# Docker 部署说明（统一版）
 
-## 当前运行模式（事实）
+## 运行模式
 
-**后端本地运行，其他服务在 Docker 中运行。**
+本项目采用**全量 Docker**运行：
 
-- Docker 容器：`redis`、`mysql`、`elasticsearch`、`chroma`、`frontend`
-- 本地进程：`backend`（FastAPI）
+- 容器：`frontend`、`backend`、`mysql`、`redis`、`elasticsearch`、`chroma`
+- 不再支持“本地 backend + 部分 Docker 基础设施”的混合模式
 
-> 说明：Backend 需要通过 MCP stdio 子进程访问公司内网服务，当前采用宿主机本地运行模式。
+## 支持平台
+
+- Linux + Docker Engine + Docker Compose v2
+- macOS + Docker Desktop + Docker Compose v2
+- Windows 10/11 + Docker Desktop + Docker Compose v2（建议 WSL2 / Git Bash）
 
 ## 目录约定
 
-所有 Docker 配置统一放在仓库的 `docker/` 目录：
+- `docker/docker-compose.yml`：公共服务定义（默认生产形态）
+- `docker/docker-compose.dev.yml`：开发模式覆盖（热更新）
+- `docker/docker-compose.prod.yml`：生产模式覆盖
+- `docker/Dockerfile.frontend`：前端多阶段镜像（`dev` / `prod`）
+- `docker/Dockerfile.elasticsearch`：ES + IK 分词插件
+- `docker/nginx.frontend.conf`：前端生产静态站点配置
 
-- `docker/docker-compose.yml`
-- `docker/Dockerfile.frontend`
-- `docker/Dockerfile.elasticsearch`
-- `docker/DOCKER_DEPLOYMENT.md`
+## 前置准备
 
-## 服务架构
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Docker Network                        │
-│                                                          │
-│  ┌──────────┐    ┌──────────────────┐                  │
-│  │ Frontend │───▶│ MySQL            │                  │
-│  │  :5173   │    │  :3306           │                  │
-│  └──────────┘    └──────────────────┘                  │
-│        │                                                 │
-│        ├──────────▶┌──────────────────┐                 │
-│        │           │ Redis            │                 │
-│        │           │  :6379           │                 │
-│        │           └──────────────────┘                 │
-│        │                                                 │
-│        ├──────────▶┌──────────────────┐                 │
-│        │           │ ElasticSearch    │                 │
-│        │           │  :9200 (IK插件)  │                 │
-│        │           └──────────────────┘                 │
-│        │                                                 │
-│        └──────────▶┌──────────────────┐                 │
-│                    │ Chroma           │                 │
-│                    │  :8000           │                 │
-│                    └──────────────────┘                 │
-└─────────────────────────────────────────────────────────┘
-         ▲               ▲               ▲
-         │               │               │
-  localhost:5173   localhost:3306  localhost:9200/8000
-         │
-┌─────────────────────────────────────────────────────────┐
-│                 本地 Backend (:8080)                   │
-│  访问 Redis/MySQL/ES/Chroma 的 localhost 暴露端口      │
-└─────────────────────────────────────────────────────────┘
-```
-
-## 服务配置
-
-### Frontend
-
-- 镜像：基于 `node:18-alpine` 自定义构建
-- Dockerfile：`docker/Dockerfile.frontend`
-- Compose：`docker/docker-compose.yml`
-- 热更新：挂载 `../frontend:/app`
-
-### Backend（本地）
-
-- 运行方式：`./scripts/start.sh` 启动本地 uvicorn
-- 端口：`8080`
-- 依赖服务：Redis、MySQL、ElasticSearch、Chroma（均由 Docker 提供）
-- 环境变量示例：
-  - `DATABASE_URL=mysql+pymysql://root:password@localhost:3306/ai_platform`
-  - `REDIS_URL=redis://localhost:6379/0`
-  - `ELASTICSEARCH_URL=http://localhost:9200`
-  - `CHROMA_URL=http://localhost:8000`
-
-### ElasticSearch
-
-- 镜像：基于 `elasticsearch:8.11.0` + IK 分词器
-- Dockerfile：`docker/Dockerfile.elasticsearch`
-- 配置：单节点模式，禁用安全认证
-
-### MySQL
-
-- 镜像：`mysql:8.0`
-- 数据持久化：`mysql_data` volume
-- 字符集：`utf8mb4`
-
-### Chroma
-
-- 镜像：`chromadb/chroma:0.5.23`
-- 数据持久化：`chroma_data` volume
-
-## 常用命令
+1. 复制配置模板：
 
 ```bash
-# 启动 Docker 基础设施（Redis/MySQL/ES/Chroma/Frontend）
-docker compose -f docker/docker-compose.yml up -d
+cp backend/.env.example backend/.env
+```
 
-# 重建并启动前端
-docker compose -f docker/docker-compose.yml up -d --build frontend
+2. 生成并写入 `ENCRYPTION_KEY`：
 
-# 查看容器状态
-docker compose -f docker/docker-compose.yml ps
+```bash
+docker run --rm python:3.11-alpine python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
 
-# 查看某个服务日志
-docker compose -f docker/docker-compose.yml logs -f mysql
+把输出写入 `backend/.env`：
+
+```bash
+ENCRYPTION_KEY=<generated-value>
+```
+
+> `ENCRYPTION_KEY` 缺失会导致 `bootstrap` 在种子导入阶段失败。
+
+## 启动命令
+
+```bash
+# 首次初始化（推荐）
+./scripts/bootstrap.sh
+
+# 开发模式
+./scripts/bootstrap.sh --dev
+
+# 日常启动
+./scripts/start.sh
+
+# 停止
+./scripts/stop.sh
+```
+
+## 服务端口
+
+- Frontend: `15173`
+- Backend: `18080`
+- MySQL: `13306`
+- Redis: `16379`
+- Elasticsearch: `19200`
+- Chroma: `18000`
+
+## 最小可用验证
+
+```bash
+curl -fsS http://localhost:18080/api/health
+curl -fsS http://localhost:15173 >/dev/null
 ```
 
 ## 常见问题
 
-### Q: 前端搜索没有结果？
+### 1) `ENCRYPTION_KEY` 缺失
 
-A: 检查：
-1. ES 容器正常运行：`docker compose -f docker/docker-compose.yml ps elasticsearch`
-2. IK 插件已安装：`curl http://localhost:9200/_cat/plugins`
-3. 索引已创建（在本地 Backend venv 中执行）：`python backend/scripts/init_es_index.py`
-4. 数据已索引（在本地 Backend venv 中执行）：`python backend/scripts/reindex_from_mysql.py`
+现象：`bootstrap` 在 `init_release_seed.py` 失败。  
+处理：按“前置准备”补齐 `backend/.env` 的 `ENCRYPTION_KEY` 后重试。
 
-### Q: Backend 启动失败？
+### 2) 端口冲突
 
-A: 检查：
-1. 基础设施是否就绪：`docker compose -f docker/docker-compose.yml ps`
-2. Backend 日志：`tail -f logs/backend.log`
-3. 本地端口冲突：`lsof -i :8080`
+现象：脚本提示某端口被占用并中止。  
+处理：停止占用端口的进程，或修改 `docker-compose.yml` 的映射端口。
 
-### Q: 容器启动失败？
+### 3) Docker Compose 不可用
 
-A: 排查步骤：
-1. 查看日志：`docker compose -f docker/docker-compose.yml logs <service>`
-2. 检查端口占用：`lsof -i :5173` / `lsof -i :3306` / `lsof -i :9200`
-3. 清理重建：`docker compose -f docker/docker-compose.yml down -v && docker compose -f docker/docker-compose.yml up -d --build`
-
-## 维护命令
-
-```bash
-# 完全清理（删除数据卷）
-docker compose -f docker/docker-compose.yml down -v
-
-# 重建所有镜像
-docker compose -f docker/docker-compose.yml build --no-cache
-
-# 查看资源占用
-docker stats
-
-# 导出数据库
-docker compose -f docker/docker-compose.yml exec -T mysql mysqldump -uroot -ppassword ai_platform > backup.sql
-
-# 导入数据库
-docker compose -f docker/docker-compose.yml exec -T mysql mysql -uroot -ppassword ai_platform < backup.sql
-```
+现象：脚本提示未检测到 `docker compose`。  
+处理：升级 Docker Desktop / Docker Engine 并确认 `docker compose version` 可执行。

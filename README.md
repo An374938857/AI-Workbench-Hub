@@ -52,6 +52,12 @@ AI一站式工作台，一个主要面向项目经理、产品经理、研发人
 
 ## 快速开始（从 clone 到运行）
 
+### 官方支持矩阵
+
+- Linux + Docker Engine + Docker Compose v2
+- macOS + Docker Desktop + Docker Compose v2
+- Windows 10/11 + Docker Desktop + Docker Compose v2（建议在 WSL2 / Git Bash 执行脚本）
+
 ### 1. 克隆仓库
 
 ```bash
@@ -62,6 +68,17 @@ cd AI-Workbench-Hub
 ### 2. 检查前置条件
 
 - 已安装并启动 Docker Desktop / Docker Engine
+- 已安装 Docker Compose v2（`docker compose version` 可用）
+- 已准备 `backend/.env`（从模板复制）
+  ```bash
+  cp backend/.env.example backend/.env
+  ```
+- 必须配置 `ENCRYPTION_KEY`（用于模型 API Key / MCP 配置加密）：
+  ```bash
+  docker run --rm python:3.11-alpine python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+  # 将输出写入 backend/.env
+  # ENCRYPTION_KEY=<生成值>
+  ```
 - 以下端口未被占用：
   - `15173`（前端）
   - `18080`（后端）
@@ -95,6 +112,15 @@ cd AI-Workbench-Hub
 
 - username: `admin`
 - password: `admin123`
+
+### 4.1 最小可用安装验证（建议首次执行）
+
+```bash
+curl -fsS http://localhost:18080/api/health
+curl -fsS http://localhost:15173 >/dev/null
+```
+
+两个命令都返回成功即表示“从 clone 到服务可访问”链路可用。
 
 ### 5. 日常启动（非首次）
 
@@ -187,8 +213,8 @@ export RELEASE_ALIYUN_CODING_PLAN_API_KEY='你的API Key'
 
 ## 技术架构
 
-- Frontend: Vue 3 + Vite
-- Backend: Python 3.13 + FastAPI + SQLAlchemy + Alembic
+- Frontend: Vue 3 + Vite（开发模式）/ Nginx 静态托管（生产模式）
+- Backend: Python 3.11 + FastAPI + SQLAlchemy + Alembic
 - Storage: MySQL 8.0 + Redis 7 + Elasticsearch 8 + Chroma
 
 ## 配置
@@ -202,6 +228,7 @@ export RELEASE_ALIYUN_CODING_PLAN_API_KEY='你的API Key'
 - `ELASTICSEARCH_URL`
 - `CHROMA_URL`
 - `JWT_SECRET_KEY`
+- `ENCRYPTION_KEY`（必填，缺失会导致初始化失败）
 - `RELEASE_ALIYUN_CODING_PLAN_API_KEY`（可选，首次 `bootstrap` 时注入 Aliyun Coding Plan 密钥）
 
 ### 模型服务商配置说明

@@ -6,6 +6,47 @@ on:
   pull_request:
 
 jobs:
+  entrypoint-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax
+        run: |
+          for f in scripts/*.sh scripts/tests/*.sh; do
+            bash -n "$f"
+          done
+      - name: Entrypoint contract tests
+        run: ./scripts/tests/entrypoint_contract_test.sh
+
+  bootstrap-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare ENCRYPTION_KEY
+        run: |
+          echo "ENCRYPTION_KEY=$(python3 - <<'PY'
+import base64
+import os
+print(base64.urlsafe_b64encode(os.urandom(32)).decode())
+PY
+          )" >> "$GITHUB_ENV"
+      - name: Bootstrap (prod)
+        run: ./scripts/bootstrap.sh --build
+      - name: Health check
+        run: |
+          curl -fsS http://localhost:18080/api/health
+          curl -fsS http://localhost:15173 >/dev/null
+      - name: Print compose status on failure
+        if: failure()
+        run: docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml ps
+      - name: Print logs on failure
+        if: failure()
+        run: docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml logs --tail 200
+      - name: Cleanup
+        if: always()
+        run: ./scripts/stop.sh
+
   backend:
     runs-on: ubuntu-latest
     services:

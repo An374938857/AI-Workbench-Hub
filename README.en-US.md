@@ -38,6 +38,12 @@ AI Workbench Hub is an open-source collaboration platform primarily designed for
 
 ## Quick Start (From Clone to Running)
 
+### Official Support Matrix
+
+- Linux + Docker Engine + Docker Compose v2
+- macOS + Docker Desktop + Docker Compose v2
+- Windows 10/11 + Docker Desktop + Docker Compose v2 (recommended with WSL2/Git Bash for scripts)
+
 ### 1. Clone repository
 
 ```bash
@@ -48,6 +54,17 @@ cd AI-Workbench-Hub
 ### 2. Check prerequisites
 
 - Docker Desktop / Docker Engine is installed and running
+- Docker Compose v2 is available (`docker compose version`)
+- Prepare `backend/.env` from template:
+  ```bash
+  cp backend/.env.example backend/.env
+  ```
+- `ENCRYPTION_KEY` is required (used to encrypt model keys and MCP config):
+  ```bash
+  docker run --rm python:3.11-alpine python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+  # write into backend/.env
+  # ENCRYPTION_KEY=<generated-value>
+  ```
 - The following host ports are available:
   - `15173` (frontend)
   - `18080` (backend)
@@ -81,6 +98,15 @@ Default admin credentials:
 
 - username: `admin`
 - password: `admin123`
+
+### 4.1 Minimal Install Verification (recommended on first run)
+
+```bash
+curl -fsS http://localhost:18080/api/health
+curl -fsS http://localhost:15173 >/dev/null
+```
+
+If both commands succeed, clone-to-running installation is healthy.
 
 ### 5. Daily startup (non-first-run)
 
@@ -173,8 +199,8 @@ After logging in with the admin account:
 
 ## Architecture
 
-- Frontend: Vue 3 + Vite
-- Backend: Python 3.13 + FastAPI + SQLAlchemy + Alembic
+- Frontend: Vue 3 + Vite (dev mode) / Nginx static hosting (prod mode)
+- Backend: Python 3.11 + FastAPI + SQLAlchemy + Alembic
 - Storage: MySQL 8.0 + Redis 7 + Elasticsearch 8 + Chroma
 
 ## Configuration
@@ -188,6 +214,7 @@ Important runtime variables:
 - `ELASTICSEARCH_URL`
 - `CHROMA_URL`
 - `JWT_SECRET_KEY`
+- `ENCRYPTION_KEY` (required, bootstrap fails when missing)
 - `RELEASE_ALIYUN_CODING_PLAN_API_KEY` (optional, injected into Aliyun Coding Plan during first bootstrap)
 
 ### Model Provider Configuration

@@ -13,6 +13,7 @@ echo "=========================================="
 echo "  模式: $MODE"
 
 ensure_docker_ready
+ensure_runtime_prereqs
 cd "$PROJECT_ROOT"
 
 echo ""
@@ -21,46 +22,32 @@ compose_cmd up -d $BUILD_FLAG redis mysql elasticsearch chroma
 
 echo "⏳ 等待基础设施就绪..."
 for svc in redis mysql elasticsearch chroma; do
-  printf "  %-15s" "$svc"
-  for i in $(seq 1 90); do
-    status=$(compose_cmd ps --format json "$svc" 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin).get('Health',''))" 2>/dev/null || echo "")
-    if [ "$status" = "healthy" ]; then
-      echo "✅"
-      break
-    fi
-    if [ "$i" -eq 90 ]; then
-      echo "❌ 超时"
-      compose_cmd logs --tail 80 "$svc" || true
-      exit 1
-    fi
-    sleep 1
-  done
+  wait_for_service_health "$svc" 90 true || exit 1
 done
 
 echo "📦 安装依赖..."
 echo "   Docker 镜像已内置依赖，跳过本地安装"
 
 echo "🔄 数据库迁移..."
-compose_cmd run --rm backend alembic upgrade head
+if ! compose_cmd run --rm backend alembic upgrade head; then
+  echo "❌ 数据库迁移失败"
+  echo "   修复建议："
+  echo "   1) 查看日志：docker compose -p \"$COMPOSE_PROJECT_NAME\" $(compose_file_args) logs --tail 120 backend mysql"
+  echo "   2) 确认 ENCRYPTION_KEY / DATABASE_URL 配置后重试"
+  exit 1
+fi
 
 echo ""
 echo "🚀 启动应用容器..."
 compose_cmd up -d $BUILD_FLAG backend frontend
 
 echo "⏳ 等待 Backend 健康检查..."
-for i in $(seq 1 90); do
-  status=$(compose_cmd ps --format json backend 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin).get('Health',''))" 2>/dev/null || echo "")
-  if [ "$status" = "healthy" ]; then
-    echo "✅ Backend 健康检查通过"
-    break
-  fi
-  if [ "$i" -eq 90 ]; then
-    echo "❌ Backend 健康检查超时"
-    compose_cmd logs --tail 120 backend || true
-    exit 1
-  fi
-  sleep 1
-done
+wait_for_service_health backend 90 true || {
+  echo "❌ Backend 健康检查失败"
+  echo "   修复建议：docker compose -p \"$COMPOSE_PROJECT_NAME\" $(compose_file_args) logs -f backend"
+  exit 1
+}
+echo "✅ Backend 健康检查通过"
 
 backend_container_id="$(compose_cmd ps -q backend | head -n 1)"
 compose_files="$(compose_file_args)"

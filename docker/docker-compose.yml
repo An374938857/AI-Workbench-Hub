@@ -72,7 +72,8 @@ services:
       - APP_ENV=production
       - APP_HOST=0.0.0.0
       - APP_PORT=8080
-      - JWT_SECRET_KEY=change-me-in-production
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change-me-in-production}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
       - MCP_ENABLED=false
       - RELEASE_ALIYUN_CODING_PLAN_API_KEY=${RELEASE_ALIYUN_CODING_PLAN_API_KEY:-}
     volumes:
@@ -97,12 +98,12 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.frontend
+      target: prod
     ports:
-      - "15173:5173"
+      - "15173:80"
     depends_on:
       backend:
         condition: service_started
-    command: sh -c "npm run dev -- --host 0.0.0.0"
 
 volumes:
   redis_data:
