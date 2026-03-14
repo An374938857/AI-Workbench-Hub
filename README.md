@@ -89,11 +89,12 @@ cd AI-Workbench-Hub
 
 1. 启动全部容器
 2. 等待服务健康检查通过
-3. 执行数据库迁移（`alembic upgrade head`）
-4. 初始化 Elasticsearch 索引
-5. 创建默认管理员账号
-6. 导入开源种子数据（幂等）
-7. 启动后端与前端服务
+3. 首次自动构建 `backend/frontend` 镜像（含失败重试）
+4. 执行数据库迁移（`alembic upgrade head`）
+5. 初始化 Elasticsearch 索引
+6. 创建默认管理员账号
+7. 导入开源种子数据（幂等）
+8. 启动后端与前端服务
 
 ### 4. 访问系统
 
@@ -113,6 +114,12 @@ curl -fsS http://localhost:15173 >/dev/null
 ```
 
 两个命令都返回成功即表示“从 clone 到服务可访问”链路可用。
+
+如果遇到 `failed to fetch anonymous token ... EOF`，属于 Docker Hub 网络波动。脚本已自动重试；若仍失败，请先手工执行：
+
+```bash
+docker pull python:3.11-slim
+```
 
 ### 5. 日常启动（非首次）
 

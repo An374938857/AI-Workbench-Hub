@@ -75,11 +75,12 @@ cd AI-Workbench-Hub
 
 1. Start all required containers
 2. Wait for service health checks
-3. Run database migration (`alembic upgrade head`)
-4. Initialize Elasticsearch indices
-5. Create default admin account
-6. Import open-source seed data (idempotent)
-7. Start backend and frontend
+3. Build `backend/frontend` images on first run (with retry)
+4. Run database migration (`alembic upgrade head`)
+5. Initialize Elasticsearch indices
+6. Create default admin account
+7. Import open-source seed data (idempotent)
+8. Start backend and frontend
 
 ### 4. Access application
 
@@ -99,6 +100,12 @@ curl -fsS http://localhost:15173 >/dev/null
 ```
 
 If both commands succeed, clone-to-running installation is healthy.
+
+If you see `failed to fetch anonymous token ... EOF`, this is usually a transient Docker Hub network issue. Scripts already retry automatically; if it still fails, run:
+
+```bash
+docker pull python:3.11-slim
+```
 
 ### 5. Daily startup (non-first-run)
 

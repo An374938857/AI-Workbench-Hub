@@ -12,17 +12,19 @@ ensure_runtime_prereqs
 cd "$PROJECT_ROOT"
 
 echo "🚀 启动基础容器..."
-compose_cmd up -d $BUILD_FLAG mysql redis elasticsearch chroma
+retry_compose_cmd "启动基础容器" up -d $BUILD_FLAG mysql redis elasticsearch chroma || exit 1
 
 if [[ "$BUILD_FLAG" == "--build" ]]; then
   echo "🧱 构建应用镜像..."
-  compose_cmd build backend frontend
+  retry_compose_cmd "构建应用镜像" build backend frontend || exit 1
 fi
 
 echo "⏳ 等待基础设施健康..."
 for svc in redis mysql elasticsearch chroma; do
   wait_for_service_health "$svc" 90 true || exit 1
 done
+
+ensure_service_image_ready backend || exit 1
 
 echo "🗄️ 执行数据库迁移 (migrate)..."
 if ! compose_cmd run --rm backend alembic upgrade head; then
@@ -56,8 +58,10 @@ if ! compose_cmd run --rm backend python scripts/init_release_seed.py; then
   exit 1
 fi
 
+ensure_service_image_ready frontend || exit 1
+
 echo "🚀 启动应用容器..."
-compose_cmd up -d backend frontend
+retry_compose_cmd "启动应用容器" up -d backend frontend || exit 1
 
 echo "⏳ 等待 backend 健康..."
 wait_for_service_health backend 90 true || {

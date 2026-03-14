@@ -18,12 +18,14 @@ cd "$PROJECT_ROOT"
 
 echo ""
 echo "🐳 启动 Docker 基础设施..."
-compose_cmd up -d $BUILD_FLAG redis mysql elasticsearch chroma
+retry_compose_cmd "启动基础容器" up -d $BUILD_FLAG redis mysql elasticsearch chroma || exit 1
 
 echo "⏳ 等待基础设施就绪..."
 for svc in redis mysql elasticsearch chroma; do
   wait_for_service_health "$svc" 90 true || exit 1
 done
+
+ensure_service_image_ready backend || exit 1
 
 echo "📦 安装依赖..."
 echo "   Docker 镜像已内置依赖，跳过本地安装"
@@ -37,9 +39,11 @@ if ! compose_cmd run --rm backend alembic upgrade head; then
   exit 1
 fi
 
+ensure_service_image_ready frontend || exit 1
+
 echo ""
 echo "🚀 启动应用容器..."
-compose_cmd up -d $BUILD_FLAG backend frontend
+retry_compose_cmd "启动应用容器" up -d $BUILD_FLAG backend frontend || exit 1
 
 echo "⏳ 等待 Backend 健康检查..."
 wait_for_service_health backend 90 true || {

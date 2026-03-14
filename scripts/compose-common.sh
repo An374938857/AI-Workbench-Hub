@@ -55,6 +55,54 @@ compose_cmd() {
   docker compose -p "$COMPOSE_PROJECT_NAME" "${compose_files[@]}" "$@"
 }
 
+service_image_ref() {
+  local service="$1"
+  echo "${COMPOSE_PROJECT_NAME}-${service}:latest"
+}
+
+retry_compose_cmd() {
+  local desc="$1"
+  shift
+
+  local max_attempts="${COMPOSE_RETRY_ATTEMPTS:-3}"
+  local attempt=1
+  local delay_sec=2
+  local rc=0
+
+  while [[ "$attempt" -le "$max_attempts" ]]; do
+    if compose_cmd "$@"; then
+      return 0
+    fi
+    rc=$?
+    if [[ "$attempt" -lt "$max_attempts" ]]; then
+      echo "⚠️  ${desc}失败（第 ${attempt}/${max_attempts} 次），${delay_sec}s 后重试..."
+      sleep "$delay_sec"
+      delay_sec=$((delay_sec * 2))
+    fi
+    attempt=$((attempt + 1))
+  done
+
+  echo "❌ ${desc}失败，已重试 ${max_attempts} 次"
+  echo "   常见原因：Docker Hub 网络波动 / 代理异常 / 公司网络限制"
+  echo "   修复建议："
+  echo "   1) 先执行 docker pull python:3.11-slim 验证网络连通性"
+  echo "   2) 若处于受限网络，配置 Docker registry mirror 或代理"
+  echo "   3) 网络恢复后重新执行脚本"
+  return "$rc"
+}
+
+ensure_service_image_ready() {
+  local service="$1"
+  local image_ref
+  image_ref="$(service_image_ref "$service")"
+  if docker image inspect "$image_ref" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  echo "🧱 首次运行，构建 ${service} 镜像..."
+  retry_compose_cmd "构建 ${service} 镜像" build "$service" || return 1
+}
+
 ensure_compose_cli_ready() {
   if ! docker compose version >/dev/null 2>&1; then
     echo "❌ 未检测到可用的 Docker Compose 插件（docker compose）"
