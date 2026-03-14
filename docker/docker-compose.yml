@@ -1,6 +1,6 @@
 services:
   redis:
-    image: redis:7-alpine
+    image: ${DOCKER_REGISTRY_MIRROR:-docker.m.daocloud.io}/library/redis:7-alpine
     ports:
       - "16379:6379"
     command: ["redis-server", "--appendonly", "yes"]
@@ -13,7 +13,7 @@ services:
       retries: 5
 
   mysql:
-    image: mysql:8.0
+    image: ${DOCKER_REGISTRY_MIRROR:-docker.m.daocloud.io}/library/mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: ai_platform
@@ -32,6 +32,8 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.elasticsearch
+      args:
+        REGISTRY_PREFIX: ${DOCKER_REGISTRY_MIRROR:-docker.m.daocloud.io}
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -47,7 +49,7 @@ services:
       retries: 12
 
   chroma:
-    image: chromadb/chroma:0.5.23
+    image: ${DOCKER_REGISTRY_MIRROR:-docker.m.daocloud.io}/chromadb/chroma:0.5.23
     ports:
       - "18000:8000"
     volumes:
@@ -62,6 +64,11 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
+      args:
+        REGISTRY_PREFIX: ${DOCKER_REGISTRY_MIRROR:-docker.m.daocloud.io}
+        APT_MIRROR: ${APT_MIRROR:-mirrors.aliyun.com}
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://mirrors.aliyun.com/pypi/simple}
+        PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-mirrors.aliyun.com}
     ports:
       - "18080:8080"
     environment:
@@ -100,6 +107,9 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.frontend
       target: prod
+      args:
+        REGISTRY_PREFIX: ${DOCKER_REGISTRY_MIRROR:-docker.m.daocloud.io}
+        NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmmirror.com}
     ports:
       - "15173:80"
     depends_on:

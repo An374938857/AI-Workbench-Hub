@@ -9,6 +9,7 @@ fi
 COMPOSE_PROJECT_NAME="ai-skill-sharing-platform-release"
 BACKEND_ENV_FILE="${BACKEND_ENV_FILE:-$PROJECT_ROOT/backend/.env}"
 BACKEND_ENV_TEMPLATE_FILE="${BACKEND_ENV_TEMPLATE_FILE:-$PROJECT_ROOT/backend/.env.example}"
+DOCKER_REGISTRY_MIRROR="${DOCKER_REGISTRY_MIRROR:-docker.m.daocloud.io}"
 MODE="prod"
 BUILD_FLAG=""
 REBUILD_FLAG="false"
@@ -172,7 +173,7 @@ upsert_env_key_value() {
 }
 
 generate_encryption_key_via_docker() {
-  docker run --rm python:3.11-alpine \
+  docker run --rm "${DOCKER_REGISTRY_MIRROR}/library/python:3.11-alpine" \
     python -c "import base64,os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())"
 }
 

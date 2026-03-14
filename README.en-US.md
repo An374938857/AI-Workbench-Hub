@@ -226,6 +226,24 @@ After logging in with the admin account:
 
 Configuration is auto-initialized by startup scripts (missing `backend/.env` and required keys are auto-created). You can still customize values based on `backend/.env.example`.
 
+Image/package acceleration (China-friendly defaults):
+
+- Docker image prefix defaults to `docker.m.daocloud.io`
+- Backend build defaults to `APT_MIRROR=mirrors.aliyun.com`
+- Backend Python deps default to `PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple`
+- Frontend Node deps default to `NPM_REGISTRY=https://registry.npmmirror.com`
+
+To switch back to official upstreams, create project-root `.env` (see `.env.example`) and set:
+
+```bash
+DOCKER_REGISTRY_MIRROR=docker.io
+# Optional overrides:
+# APT_MIRROR=deb.debian.org
+# PIP_INDEX_URL=https://pypi.org/simple
+# PIP_TRUSTED_HOST=pypi.org
+# NPM_REGISTRY=https://registry.npmjs.org
+```
+
 Important runtime variables:
 
 - `DATABASE_URL`

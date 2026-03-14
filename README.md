@@ -240,6 +240,24 @@ export RELEASE_ALIYUN_CODING_PLAN_API_KEY='你的API Key'
 
 配置由启动脚本自动初始化（若缺失会创建 `backend/.env` 并补齐关键项），你也可以基于 `backend/.env.example` 自行覆盖。
 
+镜像与包管理器加速（默认国内源）：
+
+- Docker 镜像前缀默认使用 `docker.m.daocloud.io`
+- Backend 构建默认使用 `APT_MIRROR=mirrors.aliyun.com`
+- Backend 依赖默认使用 `PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple`
+- Frontend 依赖默认使用 `NPM_REGISTRY=https://registry.npmmirror.com`
+
+如需切回官方源，可在项目根目录创建 `.env`（参考 `.env.example`）并设置：
+
+```bash
+DOCKER_REGISTRY_MIRROR=docker.io
+# 可按需叠加：
+# APT_MIRROR=deb.debian.org
+# PIP_INDEX_URL=https://pypi.org/simple
+# PIP_TRUSTED_HOST=pypi.org
+# NPM_REGISTRY=https://registry.npmjs.org
+```
+
 关键环境变量：
 
 - `DATABASE_URL`
